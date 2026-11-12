@@ -1,0 +1,3087 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>MiFrame · Bóveda Privada de Frames y Enlaces</title>
+  <style>
+    /* ==========================================================================
+       VARIABLES DE TEMA Y DISEÑO (MODO CLARO Y OSCURO)
+       ========================================================================== */
+    :root {
+      --bg-primary: #f4f6f9;
+      --bg-secondary: #ffffff;
+      --bg-tertiary: #e9edf4;
+      --bg-elevated: #ffffff;
+      --text-primary: #121826;
+      --text-secondary: #4b5563;
+      --text-muted: #6b7280;
+      --border-color: #d1d9e6;
+      --accent: #2563eb;
+      --accent-hover: #1d4ed8;
+      --accent-soft: rgba(37, 99, 235, 0.12);
+      --danger: #dc2626;
+      --danger-hover: #b91c1c;
+      --danger-soft: rgba(220, 38, 38, 0.12);
+      --warning: #d97706;
+      --warning-soft: rgba(217, 119, 6, 0.14);
+      --success: #059669;
+      --success-soft: rgba(5, 150, 105, 0.14);
+      --star: #eab308;
+      --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.06);
+      --shadow-md: 0 4px 14px rgba(0, 0, 0, 0.08);
+      --shadow-lg: 0 12px 30px rgba(0, 0, 0, 0.14);
+      --radius-sm: 8px;
+      --radius-md: 12px;
+      --radius-lg: 16px;
+      --font-sans: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root:not([data-theme="light"]) {
+        --bg-primary: #0b0f19;
+        --bg-secondary: #131926;
+        --bg-tertiary: #1e2638;
+        --bg-elevated: #171e2e;
+        --text-primary: #f3f4f6;
+        --text-secondary: #cbd5e1;
+        --text-muted: #94a3b8;
+        --border-color: #293349;
+        --accent: #3b82f6;
+        --accent-hover: #60a5fa;
+        --accent-soft: rgba(59, 130, 246, 0.16);
+        --danger: #ef4444;
+        --danger-hover: #f87171;
+        --danger-soft: rgba(239, 68, 68, 0.16);
+        --warning: #f59e0b;
+        --warning-soft: rgba(245, 158, 11, 0.16);
+        --success: #10b981;
+        --success-soft: rgba(16, 185, 129, 0.16);
+        --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.3);
+        --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.4);
+        --shadow-lg: 0 14px 34px rgba(0, 0, 0, 0.55);
+      }
+    }
+
+    :root[data-theme="dark"] {
+      --bg-primary: #0b0f19;
+      --bg-secondary: #131926;
+      --bg-tertiary: #1e2638;
+      --bg-elevated: #171e2e;
+      --text-primary: #f3f4f6;
+      --text-secondary: #cbd5e1;
+      --text-muted: #94a3b8;
+      --border-color: #293349;
+      --accent: #3b82f6;
+      --accent-hover: #60a5fa;
+      --accent-soft: rgba(59, 130, 246, 0.16);
+      --danger: #ef4444;
+      --danger-hover: #f87171;
+      --danger-soft: rgba(239, 68, 68, 0.16);
+      --warning: #f59e0b;
+      --warning-soft: rgba(245, 158, 11, 0.16);
+      --success: #10b981;
+      --success-soft: rgba(16, 185, 129, 0.16);
+      --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.3);
+      --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.4);
+      --shadow-lg: 0 14px 34px rgba(0, 0, 0, 0.55);
+    }
+
+    /* ==========================================================================
+       RESET Y BASE RESPONSIVE CON SAFE AREAS
+       ========================================================================== */
+    *, *::before, *::after {
+      box-sizing: border-box;
+    }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      background-color: var(--bg-primary);
+      color: var(--text-primary);
+      font-family: var(--font-sans);
+      font-size: 16px;
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    body {
+      padding-top: env(safe-area-inset-top);
+      padding-bottom: env(safe-area-inset-bottom);
+      padding-left: env(safe-area-inset-left);
+      padding-right: env(safe-area-inset-right);
+    }
+
+    button, input, select, textarea {
+      font-family: inherit;
+      font-size: 0.95rem;
+      color: var(--text-primary);
+    }
+
+    button {
+      cursor: pointer;
+      border: none;
+      background: none;
+      border-radius: var(--radius-sm);
+      transition: background-color 0.16s ease, transform 0.1s ease, border-color 0.16s ease, opacity 0.16s ease;
+    }
+
+    button:active {
+      transform: scale(0.98);
+    }
+
+    button:disabled {
+      opacity: 0.55;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    input[type="text"],
+    input[type="password"],
+    input[type="number"],
+    select,
+    textarea {
+      width: 100%;
+      background-color: var(--bg-primary);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-sm);
+      padding: 0.65rem 0.85rem;
+      outline: none;
+      transition: border-color 0.16s ease, box-shadow 0.16s ease;
+    }
+
+    input:focus, select:focus, textarea:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--accent-soft);
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    /* ==========================================================================
+       BOTONES Y ETIQUETAS UTILITARIAS
+       ========================================================================== */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.45rem;
+      padding: 0.6rem 1rem;
+      font-weight: 600;
+      border-radius: var(--radius-sm);
+      min-height: 40px;
+      white-space: nowrap;
+    }
+
+    .btn-sm {
+      padding: 0.4rem 0.7rem;
+      font-size: 0.84rem;
+      min-height: 34px;
+    }
+
+    .btn-primary {
+      background-color: var(--accent);
+      color: #ffffff;
+    }
+    .btn-primary:hover:not(:disabled) {
+      background-color: var(--accent-hover);
+    }
+
+    .btn-secondary {
+      background-color: var(--bg-tertiary);
+      color: var(--text-primary);
+      border: 1px solid var(--border-color);
+    }
+    .btn-secondary:hover:not(:disabled) {
+      background-color: var(--border-color);
+    }
+
+    .btn-danger {
+      background-color: var(--danger-soft);
+      color: var(--danger);
+      border: 1px solid transparent;
+    }
+    .btn-danger:hover:not(:disabled) {
+      background-color: var(--danger);
+      color: #ffffff;
+    }
+
+    .btn-success {
+      background-color: var(--success-soft);
+      color: var(--success);
+    }
+    .btn-success:hover:not(:disabled) {
+      background-color: var(--success);
+      color: #ffffff;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.25rem;
+      padding: 0.18rem 0.55rem;
+      border-radius: 999px;
+      font-size: 0.76rem;
+      font-weight: 600;
+      background-color: var(--bg-tertiary);
+      color: var(--text-secondary);
+    }
+
+    .badge-accent {
+      background-color: var(--accent-soft);
+      color: var(--accent);
+    }
+
+    .badge-warning {
+      background-color: var(--warning-soft);
+      color: var(--warning);
+    }
+
+    .badge-success {
+      background-color: var(--success-soft);
+      color: var(--success);
+    }
+
+    /* ==========================================================================
+       PANTALLA DE ACCESO / CREACIÓN DE CONTRASEÑA
+       ========================================================================== */
+    .auth-wrapper {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1.25rem;
+    }
+
+    .auth-card {
+      width: 100%;
+      max-width: 440px;
+      background-color: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      padding: 2rem 1.75rem;
+      box-shadow: var(--shadow-lg);
+    }
+
+    .auth-logo {
+      width: 54px;
+      height: 54px;
+      border-radius: 14px;
+      background: linear-gradient(135deg, var(--accent), #7c3aed);
+      color: #fff;
+      font-weight: 800;
+      font-size: 1.35rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 1.1rem;
+      letter-spacing: -0.02em;
+    }
+
+    .auth-title {
+      margin: 0 0 0.35rem 0;
+      font-size: 1.45rem;
+      font-weight: 700;
+    }
+
+    .auth-subtitle {
+      margin: 0 0 1.4rem 0;
+      color: var(--text-secondary);
+      font-size: 0.92rem;
+    }
+
+    .form-group {
+      margin-bottom: 1rem;
+    }
+
+    .form-label {
+      display: block;
+      font-size: 0.86rem;
+      font-weight: 600;
+      margin-bottom: 0.38rem;
+      color: var(--text-secondary);
+    }
+
+    .alert-box {
+      padding: 0.8rem 0.95rem;
+      border-radius: var(--radius-sm);
+      font-size: 0.86rem;
+      margin-bottom: 1rem;
+      line-height: 1.45;
+    }
+
+    .alert-warning {
+      background-color: var(--warning-soft);
+      color: var(--warning);
+      border: 1px solid rgba(217, 119, 6, 0.3);
+    }
+
+    .alert-danger {
+      background-color: var(--danger-soft);
+      color: var(--danger);
+      border: 1px solid rgba(220, 38, 38, 0.3);
+    }
+
+    .alert-info {
+      background-color: var(--accent-soft);
+      color: var(--accent);
+      border: 1px solid rgba(37, 99, 235, 0.25);
+    }
+
+    /* ==========================================================================
+       CONTENEDOR PRINCIPAL DE LA BÓVEDA
+       ========================================================================== */
+    .app-container {
+      max-width: 1320px;
+      margin: 0 auto;
+      padding: 1rem;
+    }
+
+    @media (min-width: 768px) {
+      .app-container {
+        padding: 1.5rem 2rem;
+      }
+    }
+
+    /* Cabecera */
+    .topbar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.85rem;
+      background-color: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      padding: 0.9rem 1.2rem;
+      box-shadow: var(--shadow-sm);
+      margin-bottom: 1.15rem;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .brand-icon {
+      width: 38px;
+      height: 38px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, var(--accent), #7c3aed);
+      color: #fff;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.05rem;
+      flex-shrink: 0;
+    }
+
+    .brand-title {
+      font-size: 1.12rem;
+      font-weight: 700;
+      margin: 0;
+    }
+
+    .brand-sub {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      margin: 0;
+    }
+
+    .topbar-actions {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    /* Banner Modo Presentación */
+    .presentation-banner {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+      background-color: var(--bg-secondary);
+      border: 1px solid var(--accent);
+      border-radius: var(--radius-md);
+      padding: 0.75rem 1.1rem;
+      margin-bottom: 1.25rem;
+      box-shadow: var(--shadow-sm);
+    }
+
+    /* Pestañas */
+    .tabs-bar {
+      display: flex;
+      gap: 0.45rem;
+      overflow-x: auto;
+      padding-bottom: 0.35rem;
+      margin-bottom: 1rem;
+      scrollbar-width: thin;
+    }
+
+    .tab-btn {
+      padding: 0.55rem 0.95rem;
+      border-radius: 999px;
+      font-weight: 600;
+      font-size: 0.9rem;
+      background-color: var(--bg-secondary);
+      color: var(--text-secondary);
+      border: 1px solid var(--border-color);
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      white-space: nowrap;
+    }
+
+    .tab-btn:hover {
+      border-color: var(--accent);
+      color: var(--text-primary);
+    }
+
+    .tab-btn.active {
+      background-color: var(--accent);
+      color: #ffffff;
+      border-color: var(--accent);
+    }
+
+    .tab-count {
+      font-size: 0.75rem;
+      padding: 0.08rem 0.45rem;
+      border-radius: 999px;
+      background-color: rgba(128, 128, 128, 0.18);
+    }
+
+    .tab-btn.active .tab-count {
+      background-color: rgba(255, 255, 255, 0.24);
+      color: #ffffff;
+    }
+
+    /* Barra de herramientas (buscador, filtro, vista, añadir) */
+    .toolbar {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 0.65rem;
+      margin-bottom: 1.15rem;
+    }
+
+    @media (min-width: 768px) {
+      .toolbar {
+        grid-template-columns: 1fr auto auto auto;
+        align-items: center;
+      }
+    }
+
+    .toolbar-group {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    /* ==========================================================================
+       PANEL DE FORMULARIO (AÑADIR / EDITAR ELEMENTO)
+       ========================================================================== */
+    .editor-panel {
+      background-color: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      padding: 1.25rem;
+      margin-bottom: 1.35rem;
+      box-shadow: var(--shadow-md);
+    }
+
+    .editor-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1rem;
+      padding-bottom: 0.65rem;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .editor-header h2 {
+      margin: 0;
+      font-size: 1.08rem;
+    }
+
+    .editor-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 0.9rem;
+    }
+
+    @media (min-width: 768px) {
+      .editor-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      .span-2 {
+        grid-column: span 2;
+      }
+    }
+
+    .checkbox-row {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      padding: 0.55rem 0.75rem;
+      background-color: var(--bg-primary);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .checkbox-row input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      accent-color: var(--accent);
+      cursor: pointer;
+    }
+
+    .editor-footer {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      gap: 0.6rem;
+      margin-top: 1.1rem;
+      padding-top: 0.9rem;
+      border-top: 1px solid var(--border-color);
+    }
+
+    /* Vista previa en vivo y selector plegable de etiquetas dentro del editor */
+    .live-preview-box {
+      margin-top: 0.65rem;
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-sm);
+      background-color: var(--bg-primary);
+      overflow: hidden;
+    }
+
+    .live-preview-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.45rem 0.75rem;
+      background-color: var(--bg-tertiary);
+      border-bottom: 1px solid var(--border-color);
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+    }
+
+    .live-preview-body iframe {
+      display: block;
+      width: 100%;
+      border: none;
+      background-color: #ffffff;
+    }
+
+    .live-preview-body video {
+      display: block;
+      width: 100%;
+      max-height: 360px;
+      background-color: #000000;
+    }
+
+    .live-preview-body img {
+      display: block;
+      width: 100%;
+      height: auto;
+      max-height: 320px;
+      object-fit: contain;
+      background-color: var(--bg-primary);
+    }
+
+    .collapsible-subpanel {
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-sm);
+      background-color: var(--bg-primary);
+      overflow: hidden;
+    }
+
+    .collapsible-subpanel-btn {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.6rem 0.85rem;
+      background-color: var(--bg-primary);
+      font-size: 0.88rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+      text-align: left;
+    }
+
+    .collapsible-subpanel-btn:hover {
+      background-color: var(--bg-tertiary);
+    }
+
+    .collapsible-subpanel-body {
+      padding: 0.75rem 0.85rem;
+      border-top: 1px solid var(--border-color);
+      display: flex;
+      flex-direction: column;
+      gap: 0.6rem;
+    }
+
+    .tag-options-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+    }
+
+    .tag-option-btn {
+      font-size: 0.78rem;
+      font-weight: 600;
+      padding: 0.25rem 0.6rem;
+      border-radius: 999px;
+      background-color: var(--bg-tertiary);
+      color: var(--text-secondary);
+      border: 1px solid var(--border-color);
+    }
+
+    .tag-option-btn:hover {
+      border-color: var(--accent);
+      color: var(--text-primary);
+    }
+
+    .tag-option-btn.selected {
+      background-color: var(--accent-soft);
+      color: var(--accent);
+      border-color: var(--accent);
+    }
+
+    /* ==========================================================================
+       CATEGORÍAS PLEGABLES Y CUADRÍCULA / LISTA DE TARJETAS
+       ========================================================================== */
+    .category-section {
+      margin-bottom: 1.35rem;
+      background-color: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .category-header {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.85rem 1.15rem;
+      background-color: var(--bg-secondary);
+      border-bottom: 1px solid var(--border-color);
+      text-align: left;
+    }
+
+    .category-header:hover {
+      background-color: var(--bg-tertiary);
+    }
+
+    .category-header.collapsed {
+      border-bottom: none;
+    }
+
+    .category-title-wrap {
+      display: flex;
+      align-items: center;
+      gap: 0.65rem;
+    }
+
+    .cat-avatar {
+      width: 30px;
+      height: 30px;
+      border-radius: 8px;
+      color: #ffffff;
+      font-weight: 700;
+      font-size: 0.88rem;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .category-name {
+      font-weight: 700;
+      font-size: 1rem;
+    }
+
+    .chevron {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      transition: transform 0.2s ease;
+    }
+
+    .category-header.collapsed .chevron {
+      transform: rotate(-90deg);
+    }
+
+    .items-container {
+      padding: 1.1rem;
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 1rem;
+    }
+
+    .items-container.view-grid {
+      grid-template-columns: repeat(auto-fill, minmax(min(100%, 340px), 1fr));
+    }
+
+    .items-container.view-grid.frames-wide {
+      grid-template-columns: repeat(auto-fill, minmax(min(100%, 440px), 1fr));
+    }
+
+    .items-container.view-list {
+      grid-template-columns: 1fr;
+    }
+
+    /* ==========================================================================
+       TARJETA DE ELEMENTO
+       ========================================================================== */
+    .item-card {
+      background-color: var(--bg-elevated);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      box-shadow: var(--shadow-sm);
+      transition: border-color 0.16s ease, box-shadow 0.16s ease;
+    }
+
+    .item-card:hover {
+      border-color: var(--accent);
+      box-shadow: var(--shadow-md);
+    }
+
+    .item-top {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.75rem;
+    }
+
+    .item-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      color: #ffffff;
+      font-weight: 800;
+      font-size: 1.05rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      user-select: none;
+    }
+
+    .item-main {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .item-title-row {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 0.5rem;
+    }
+
+    .item-title {
+      margin: 0;
+      font-size: 1.02rem;
+      font-weight: 700;
+      word-break: break-word;
+    }
+
+    .star-btn {
+      font-size: 1.25rem;
+      line-height: 1;
+      padding: 0.25rem;
+      color: var(--text-muted);
+      flex-shrink: 0;
+    }
+
+    .star-btn.starred {
+      color: var(--star);
+    }
+
+    .item-url {
+      display: block;
+      font-size: 0.82rem;
+      color: var(--accent);
+      text-decoration: none;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      margin-top: 0.2rem;
+    }
+
+    .item-url:hover {
+      text-decoration: underline;
+    }
+
+    .item-badges {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.35rem;
+      margin-top: 0.45rem;
+    }
+
+    .item-note {
+      margin: 0;
+      font-size: 0.88rem;
+      color: var(--text-secondary);
+      background-color: var(--bg-primary);
+      padding: 0.55rem 0.75rem;
+      border-radius: var(--radius-sm);
+      word-break: break-word;
+    }
+
+    .item-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.35rem;
+    }
+
+    .tag-chip {
+      font-size: 0.76rem;
+      padding: 0.15rem 0.5rem;
+      border-radius: 6px;
+      background-color: var(--bg-tertiary);
+      color: var(--text-secondary);
+    }
+
+    /* ==========================================================================
+       CONTENEDOR MULTIMEDIA / IFRAME EMBEBIDO
+       ========================================================================== */
+    .embed-wrapper {
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-sm);
+      overflow: hidden;
+      background-color: #000000;
+      position: relative;
+    }
+
+    .embed-wrapper iframe {
+      display: block;
+      width: 100%;
+      border: none;
+      background-color: #ffffff;
+    }
+
+    .embed-wrapper video {
+      display: block;
+      width: 100%;
+      max-height: 520px;
+      background-color: #000000;
+    }
+
+    .embed-wrapper img {
+      display: block;
+      width: 100%;
+      height: auto;
+      max-height: 480px;
+      object-fit: contain;
+      background-color: var(--bg-primary);
+    }
+
+    .item-thumb-wrap {
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-sm);
+      overflow: hidden;
+      background-color: var(--bg-primary);
+      cursor: pointer;
+    }
+
+    .item-thumb-wrap img {
+      display: block;
+      width: 100%;
+      height: 150px;
+      object-fit: cover;
+      transition: transform 0.2s ease;
+    }
+
+    .item-thumb-wrap:hover img {
+      transform: scale(1.02);
+    }
+
+    .embed-bar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.5rem;
+      padding: 0.45rem 0.65rem;
+      background-color: var(--bg-tertiary);
+      border-top: 1px solid var(--border-color);
+    }
+
+    .embed-hint {
+      font-size: 0.76rem;
+      color: var(--text-muted);
+      margin: 0;
+    }
+
+    /* ==========================================================================
+       PIE DE TARJETA Y ACCIONES
+       ========================================================================== */
+    .item-footer {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.5rem;
+      padding-top: 0.65rem;
+      border-top: 1px solid var(--border-color);
+      margin-top: auto;
+    }
+
+    .item-date {
+      font-size: 0.76rem;
+      color: var(--text-muted);
+    }
+
+    .item-actions {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 0.35rem;
+    }
+
+    /* Interruptor Visible / Privado */
+    .visibility-toggle {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      padding: 0.32rem 0.62rem;
+      border-radius: 999px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      border: 1px solid var(--border-color);
+      background-color: var(--bg-primary);
+      color: var(--text-secondary);
+    }
+
+    .visibility-toggle.is-visible {
+      background-color: var(--success-soft);
+      color: var(--success);
+      border-color: rgba(5, 150, 105, 0.35);
+    }
+
+    /* ==========================================================================
+       MODALES (AJUSTES Y CONFIRMACIÓN)
+       ========================================================================== */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background-color: rgba(0, 0, 0, 0.62);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+      z-index: 1000;
+      backdrop-filter: blur(2px);
+    }
+
+    .modal-box {
+      width: 100%;
+      max-width: 560px;
+      max-height: 90vh;
+      overflow-y: auto;
+      background-color: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      padding: 1.4rem;
+      box-shadow: var(--shadow-lg);
+    }
+
+    .modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1rem;
+      padding-bottom: 0.65rem;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .modal-header h3 {
+      margin: 0;
+      font-size: 1.15rem;
+    }
+
+    .settings-section {
+      padding: 1rem 0;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .settings-section:last-child {
+      border-bottom: none;
+      padding-bottom: 0;
+    }
+
+    .settings-section h4 {
+      margin: 0 0 0.5rem 0;
+      font-size: 0.98rem;
+    }
+
+    .mono-area {
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+      word-break: break-all;
+    }
+
+    /* ==========================================================================
+       NOTIFICACIONES TOAST Y PIE DE PÁGINA
+       ========================================================================== */
+    .toast-container {
+      position: fixed;
+      bottom: calc(1rem + env(safe-area-inset-bottom));
+      right: calc(1rem + env(safe-area-inset-right));
+      z-index: 1200;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      max-width: calc(100vw - 2rem);
+    }
+
+    .toast {
+      background-color: var(--bg-elevated);
+      color: var(--text-primary);
+      border: 1px solid var(--border-color);
+      border-left: 4px solid var(--accent);
+      padding: 0.75rem 1rem;
+      border-radius: var(--radius-sm);
+      box-shadow: var(--shadow-lg);
+      font-size: 0.88rem;
+      font-weight: 500;
+    }
+
+    .toast.toast-error {
+      border-left-color: var(--danger);
+    }
+
+    .toast.toast-success {
+      border-left-color: var(--success);
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 3rem 1.25rem;
+      background-color: var(--bg-secondary);
+      border: 1px dashed var(--border-color);
+      border-radius: var(--radius-lg);
+      color: var(--text-secondary);
+    }
+
+    .vault-footer {
+      margin-top: 2rem;
+      padding-top: 1rem;
+      border-top: 1px solid var(--border-color);
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      text-align: center;
+      line-height: 1.55;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ========================================================================
+       1. PANTALLA DE ACCESO / CREACIÓN DE CONTRASEÑA
+       ======================================================================== -->
+  <div id="authScreen" class="auth-wrapper">
+    <div class="auth-card">
+      <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+        <div class="auth-logo">MF</div>
+        <button type="button" id="authThemeBtn" class="btn btn-secondary btn-sm" title="Cambiar tema">Tema</button>
+      </div>
+
+      <!-- Modo: Crear nueva bóveda -->
+      <div id="setupView" class="hidden">
+        <h1 class="auth-title">Crear bóveda en MiFrame</h1>
+        <p class="auth-subtitle">Establece una contraseña maestra para cifrar localmente tus enlaces y frames.</p>
+
+        <div class="alert-box alert-warning">
+          <strong>Aviso importante:</strong> Tus datos se cifran en este navegador con AES-GCM. <strong>Si olvidas la contraseña, no existe forma de recuperarla</strong> ni de descifrar la bóveda.
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="setupPass1">Nueva contraseña (mínimo 6 caracteres)</label>
+          <input type="password" id="setupPass1" autocomplete="new-password" placeholder="Escribe tu contraseña..." />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="setupPass2">Confirmar contraseña</label>
+          <input type="password" id="setupPass2" autocomplete="new-password" placeholder="Repite tu contraseña..." />
+        </div>
+
+        <div id="setupError" class="alert-box alert-danger hidden"></div>
+
+        <button type="button" id="setupSubmitBtn" class="btn btn-primary" style="width:100%;">Crear y abrir bóveda</button>
+
+        <div style="margin-top:1.1rem; text-align:center;">
+          <button type="button" id="openImportFromSetupBtn" class="btn btn-secondary btn-sm" style="width:100%;">
+            Restaurar desde una copia de seguridad cifrada
+          </button>
+        </div>
+      </div>
+
+      <!-- Modo: Desbloquear bóveda existente -->
+      <div id="unlockView" class="hidden">
+        <h1 class="auth-title">MiFrame · Bóveda bloqueada</h1>
+        <p class="auth-subtitle">Introduce tu contraseña maestra para descifrar tus elementos guardados.</p>
+
+        <div id="lockoutBanner" class="alert-box alert-danger hidden"></div>
+
+        <div class="form-group">
+          <label class="form-label" for="unlockPass">Contraseña maestra</label>
+          <input type="password" id="unlockPass" autocomplete="current-password" placeholder="Introduce tu contraseña..." />
+        </div>
+
+        <div id="unlockError" class="alert-box alert-danger hidden"></div>
+
+        <button type="button" id="unlockSubmitBtn" class="btn btn-primary" style="width:100%;">Desbloquear bóveda</button>
+
+        <p style="margin:1.1rem 0 0 0; font-size:0.78rem; color:var(--text-muted); text-align:center;">
+          Almacenamiento 100 % local cifrado en este dispositivo.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================================
+       2. APLICACIÓN PRINCIPAL (SOLO VISIBLE TRAS DESCIFRAR)
+       ======================================================================== -->
+  <div id="appScreen" class="app-container hidden">
+
+    <!-- Cabecera superior -->
+    <header id="mainTopbar" class="topbar">
+      <div class="brand">
+        <div class="brand-icon">MF</div>
+        <div>
+          <h1 class="brand-title">MiFrame</h1>
+          <p class="brand-sub">Bóveda privada AES-GCM · Bloqueo automático tras 5 min</p>
+        </div>
+      </div>
+
+      <div class="topbar-actions">
+        <button type="button" id="presentationModeBtn" class="btn btn-secondary btn-sm" title="Ocultar controles y mostrar solo el Escaparate">
+          Modo presentación
+        </button>
+        <button type="button" id="themeToggleBtn" class="btn btn-secondary btn-sm" title="Cambiar entre modo claro y oscuro">
+          Tema
+        </button>
+        <button type="button" id="settingsBtn" class="btn btn-secondary btn-sm">
+          Ajustes
+        </button>
+        <button type="button" id="lockNowBtn" class="btn btn-danger btn-sm">
+          Bloquear
+        </button>
+      </div>
+    </header>
+
+    <!-- Banner exclusivo del Modo Presentación -->
+    <div id="presentationBanner" class="presentation-banner hidden">
+      <div>
+        <strong>Escaparate · Modo presentación</strong>
+        <span style="display:block; font-size:0.82rem; color:var(--text-secondary);">
+          Los elementos privados y controles de edición están ocultos.
+        </span>
+      </div>
+      <button type="button" id="exitPresentationBtn" class="btn btn-primary btn-sm">
+        Salir de la presentación
+      </button>
+    </div>
+
+    <!-- Navegación por pestañas -->
+    <nav id="tabsNav" class="tabs-bar" aria-label="Secciones de la bóveda">
+      <button type="button" class="tab-btn active" data-tab="all">
+        Todo <span class="tab-count" id="count-all">0</span>
+      </button>
+      <button type="button" class="tab-btn" data-tab="favorites">
+        Favoritos <span class="tab-count" id="count-favorites">0</span>
+      </button>
+      <button type="button" class="tab-btn" data-tab="frames">
+        Frames <span class="tab-count" id="count-frames">0</span>
+      </button>
+      <button type="button" class="tab-btn" data-tab="showcase">
+        Escaparate <span class="tab-count" id="count-showcase">0</span>
+      </button>
+      <button type="button" class="tab-btn" data-tab="trash">
+        Papelera <span class="tab-count" id="count-trash">0</span>
+      </button>
+    </nav>
+
+    <!-- Barra de búsqueda, filtros y acciones -->
+    <section id="toolbarSection" class="toolbar">
+      <input type="text" id="searchInput" placeholder="Buscar por título, URL, categoría, etiquetas o nota..." />
+
+      <select id="typeFilterSelect" aria-label="Filtrar por tipo" style="width:auto; min-width:150px;">
+        <option value="all">Todos los tipos</option>
+        <option value="frame">Solo Frames / Media</option>
+        <option value="link">Solo Enlaces</option>
+      </select>
+
+      <div class="toolbar-group">
+        <button type="button" id="viewGridBtn" class="btn btn-secondary btn-sm" title="Vista en cuadrícula">Cuadrícula</button>
+        <button type="button" id="viewListBtn" class="btn btn-secondary btn-sm" title="Vista en lista">Lista</button>
+      </div>
+
+      <button type="button" id="openNewItemBtn" class="btn btn-primary">
+        + Nuevo elemento
+      </button>
+    </section>
+
+    <!-- Panel de creación / edición (sin etiqueta <form>) -->
+    <section id="itemEditorPanel" class="editor-panel hidden" aria-label="Editor de elemento">
+      <div class="editor-header">
+        <h2 id="editorHeading">Añadir nuevo elemento</h2>
+        <button type="button" id="closeEditorBtn" class="btn btn-secondary btn-sm">Cerrar</button>
+      </div>
+
+      <input type="hidden" id="editItemId" value="" />
+
+      <div class="editor-grid">
+        <div class="form-group span-2" style="margin:0;">
+          <label class="form-label" for="itemTitleInput">Título *</label>
+          <input type="text" id="itemTitleInput" placeholder="Ej. Documental interactivo o Panel de noticias" />
+        </div>
+
+        <div class="form-group span-2" style="margin:0;">
+          <label class="form-label" for="itemRawInput">URL o código &lt;iframe ...&gt; completo *</label>
+          <textarea id="itemRawInput" rows="2" placeholder="Pega una URL (https://...) o el código completo <iframe src=&quot;...&quot; height=&quot;400&quot;></iframe>"></textarea>
+          <div id="autoDetectHint" style="font-size:0.78rem; color:var(--accent); margin-top:0.3rem;"></div>
+          <div id="editorLivePreview" class="live-preview-box hidden"></div>
+        </div>
+
+        <div class="form-group span-2" style="margin:0;">
+          <label class="checkbox-row" style="width:100%;">
+            <input type="checkbox" id="itemShowcaseCheck" />
+            <span><strong>Mostrar en el Escaparate</strong> (Visible en modo presentación)</span>
+          </label>
+        </div>
+
+        <div class="form-group span-2" style="margin:0;">
+          <label class="form-label" for="itemNoteInput">Nota corta</label>
+          <input type="text" id="itemNoteInput" placeholder="Descripción breve o recordatorio..." />
+        </div>
+      </div>
+
+      <div id="editorError" class="alert-box alert-danger hidden" style="margin-top:0.85rem; margin-bottom:0;"></div>
+
+      <div class="editor-footer">
+        <button type="button" id="cancelEditorBtn" class="btn btn-secondary">Cancelar</button>
+        <button type="button" id="saveItemBtn" class="btn btn-primary">Guardar elemento</button>
+      </div>
+    </section>
+
+    <!-- Barra rápida en Papelera -->
+    <div id="trashBanner" class="alert-box alert-warning hidden" style="display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:0.5rem;">
+      <span>Los elementos en la papelera siguen cifrados. Puedes restaurarlos o eliminarlos definitivamente.</span>
+      <button type="button" id="emptyTrashBtn" class="btn btn-danger btn-sm">Vaciar papelera</button>
+    </div>
+
+    <!-- Contenedor principal de resultados agrupados por categoría -->
+    <main id="contentArea"></main>
+
+    <!-- Pie informativo de privacidad -->
+    <footer id="vaultFooter" class="vault-footer">
+      <strong>Privacidad y funcionamiento local:</strong> Todos tus datos viven únicamente cifrados en el almacenamiento local (<code>localStorage</code>) de este navegador y dispositivo. No se envían a ningún servidor externo, salvo las conexiones directas que realicen los frames que tú decidas cargar. Algunos sitios web (como Google, Instagram, bancos o medios) bloquean su carga dentro de iframes por seguridad y se verán en blanco.
+    </footer>
+  </div>
+
+  <!-- ========================================================================
+       3. MODAL DE AJUSTES (CONTRASEÑA Y COPIAS DE SEGURIDAD CIFRADAS)
+       ======================================================================== -->
+  <div id="settingsModal" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="settingsTitle">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3 id="settingsTitle">Ajustes y copias de seguridad</h3>
+        <button type="button" id="closeSettingsBtn" class="btn btn-secondary btn-sm">Cerrar</button>
+      </div>
+
+      <!-- Cambiar contraseña -->
+      <div class="settings-section">
+        <h4>1. Cambiar contraseña maestra</h4>
+        <p style="font-size:0.84rem; color:var(--text-secondary); margin:0 0 0.75rem 0;">
+          Volverá a cifrar toda tu bóveda con una nueva sal y clave derivada.
+        </p>
+        <div class="form-group">
+          <label class="form-label" for="currPassInput">Contraseña actual</label>
+          <input type="password" id="currPassInput" autocomplete="current-password" />
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="newPass1Input">Nueva contraseña (mínimo 6 caracteres)</label>
+          <input type="password" id="newPass1Input" autocomplete="new-password" />
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="newPass2Input">Confirmar nueva contraseña</label>
+          <input type="password" id="newPass2Input" autocomplete="new-password" />
+        </div>
+        <div id="changePassMsg" class="alert-box hidden"></div>
+        <button type="button" id="changePassBtn" class="btn btn-primary btn-sm">Actualizar contraseña</button>
+      </div>
+
+      <!-- Exportar copia cifrada -->
+      <div class="settings-section">
+        <h4>2. Copia de seguridad cifrada (Exportar)</h4>
+        <p style="font-size:0.84rem; color:var(--text-secondary); margin:0 0 0.65rem 0;">
+          Este bloque ya está cifrado con tu contraseña actual. Guárdalo en un lugar seguro para restaurarlo en otro navegador o dispositivo.
+        </p>
+        <div style="display:flex; gap:0.5rem; margin-bottom:0.65rem;">
+          <button type="button" id="generateBackupBtn" class="btn btn-secondary btn-sm">Generar copia cifrada</button>
+          <button type="button" id="copyBackupBtn" class="btn btn-primary btn-sm">Copiar texto</button>
+        </div>
+        <textarea id="exportBackupArea" class="mono-area" rows="4" readonly placeholder="Pulsa «Generar copia cifrada» para obtener el texto..."></textarea>
+      </div>
+
+      <!-- Importar copia cifrada -->
+      <div class="settings-section">
+        <h4>3. Restaurar copia de seguridad cifrada (Importar)</h4>
+        <p style="font-size:0.84rem; color:var(--text-secondary); margin:0 0 0.65rem 0;">
+          Pega el texto cifrado de una copia anterior e introduce la contraseña con la que fue creada. <strong>Reemplazará los datos actuales de este navegador.</strong>
+        </p>
+        <div class="form-group">
+          <label class="form-label" for="importBackupArea">Texto cifrado de la copia</label>
+          <textarea id="importBackupArea" class="mono-area" rows="4" placeholder="Pega aquí el texto JSON cifrado..."></textarea>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="importBackupPass">Contraseña de esa copia</label>
+          <input type="password" id="importBackupPass" placeholder="Contraseña con la que se creó la copia..." />
+        </div>
+        <div id="importBackupMsg" class="alert-box hidden"></div>
+        <button type="button" id="importBackupBtn" class="btn btn-danger btn-sm">Descifrar y restaurar copia</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal independiente para restaurar copia desde pantalla inicial -->
+  <div id="initialImportModal" class="modal-backdrop hidden" role="dialog" aria-modal="true">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3>Restaurar copia cifrada</h3>
+        <button type="button" id="closeInitImportBtn" class="btn btn-secondary btn-sm">Cerrar</button>
+      </div>
+      <p style="font-size:0.85rem; color:var(--text-secondary); margin-top:0;">
+        Pega el texto cifrado exportado desde otra instalación y escribe su contraseña para abrir tu bóveda.
+      </p>
+      <div class="form-group">
+        <label class="form-label" for="initImportText">Texto cifrado</label>
+        <textarea id="initImportText" class="mono-area" rows="5" placeholder="Pega aquí el respaldo cifrado..."></textarea>
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="initImportPass">Contraseña de la copia</label>
+        <input type="password" id="initImportPass" placeholder="Contraseña maestra de la copia..." />
+      </div>
+      <div id="initImportError" class="alert-box alert-danger hidden"></div>
+      <button type="button" id="initImportConfirmBtn" class="btn btn-primary" style="width:100%;">Importar y abrir bóveda</button>
+    </div>
+  </div>
+
+  <!-- ========================================================================
+       4. MODAL DE DOBLE CONFIRMACIÓN (SIN USAR window.confirm)
+       ======================================================================== -->
+  <div id="confirmModal" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="confirmTitle">
+    <div class="modal-box" style="max-width:430px;">
+      <div class="modal-header">
+        <h3 id="confirmTitle">Confirmar acción</h3>
+      </div>
+      <p id="confirmMessage" style="margin:0 0 1rem 0; color:var(--text-secondary); font-size:0.94rem;"></p>
+      <div id="confirmStep2Box" class="alert-box alert-danger hidden">
+        <strong>Segunda confirmación:</strong> Esta acción es irreversible y los datos no podrán recuperarse. Pulsa de nuevo para confirmar definitivamente.
+      </div>
+      <div style="display:flex; justify-content:flex-end; gap:0.6rem;">
+        <button type="button" id="confirmCancelBtn" class="btn btn-secondary">Cancelar</button>
+        <button type="button" id="confirmProceedBtn" class="btn btn-danger">Continuar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Contenedor de notificaciones flotantes -->
+  <div id="toastContainer" class="toast-container" aria-live="polite"></div>
+
+  <script>
+    (function () {
+      "use strict";
+
+      /* ========================================================================
+         CONSTANTES Y ESTADO EN MEMORIA (NUNCA SE GUARDA LA CONTRASEÑA EN CLARO)
+         ======================================================================== */
+      const STORAGE_VAULT_KEY = "boveda_privada_aes_v1";
+      const STORAGE_LOCKOUT_KEY = "boveda_privada_lockout_v1";
+      const STORAGE_THEME_KEY = "boveda_privada_theme_v1";
+      const PBKDF2_ITERATIONS = 200000;
+      const INACTIVITY_LIMIT_MS = 5 * 60 * 1000; // 5 minutos
+
+      const state = {
+        unlocked: false,
+        password: null, // Solo vive en RAM mientras la bóveda está desbloqueada
+        items: [],
+        activeTab: "all", // all | favorites | frames | showcase | trash
+        searchQuery: "",
+        typeFilter: "all", // all | frame | link
+        viewMode: "grid", // grid | list
+        presentationMode: false,
+        collapsedCategories: new Set(),
+        expandedFrames: new Set(), // IDs de tarjetas con frame desplegado manualmente en pestañas no-Frames
+        inactivityTimer: null,
+        lockoutTimer: null,
+        confirmCallback: null,
+        confirmStep: 1
+      };
+
+      /* ========================================================================
+         UTILIDADES DE ALMACENAMIENTO SEGURO (SIEMPRE CON TRY/CATCH)
+         ======================================================================== */
+      function safeGetLocal(key) {
+        try {
+          return window.localStorage.getItem(key);
+        } catch (err) {
+          console.error("Error leyendo localStorage:", err);
+          return null;
+        }
+      }
+
+      function safeSetLocal(key, value) {
+        try {
+          window.localStorage.setItem(key, value);
+          return true;
+        } catch (err) {
+          console.error("Error escribiendo en localStorage:", err);
+          showToast("No se pudo guardar en localStorage (espacio lleno o bloqueado).", "error");
+          return false;
+        }
+      }
+
+      /* ========================================================================
+         UTILIDADES DE SEGURIDAD Y ESCAPADO HTML
+         ======================================================================== */
+      function escapeHTML(str) {
+        if (str === null || str === undefined) return "";
+        return String(str)
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;")
+          .replace(/'/g, "&#39;");
+      }
+
+      function sanitizeUrlForHref(url) {
+        const trimmed = (url || "").trim();
+        if (/^https?:\/\//i.test(trimmed)) {
+          return trimmed;
+        }
+        return "#";
+      }
+
+      function showToast(message, type) {
+        const container = document.getElementById("toastContainer");
+        const toast = document.createElement("div");
+        toast.className = "toast" + (type === "error" ? " toast-error" : type === "success" ? " toast-success" : "");
+        toast.textContent = message;
+        container.appendChild(toast);
+        setTimeout(() => {
+          toast.style.opacity = "0";
+          toast.style.transition = "opacity 0.25s ease";
+          setTimeout(() => toast.remove(), 260);
+        }, 3200);
+      }
+
+      /* ========================================================================
+         CRIPTOGRAFÍA WEB CRYPTO API (PBKDF2 200.000 ITERACIONES + AES-GCM)
+         ======================================================================== */
+      function bufToBase64(buffer) {
+        const bytes = new Uint8Array(buffer);
+        let binary = "";
+        const chunkSize = 0x8000;
+        for (let i = 0; i < bytes.length; i += chunkSize) {
+          binary += String.fromCharCode.apply(null, bytes.subarray(i, i + chunkSize));
+        }
+        return btoa(binary);
+      }
+
+      function base64ToBuf(base64) {
+        const binary = atob(base64);
+        const bytes = new Uint8Array(binary.length);
+        for (let i = 0; i < binary.length; i++) {
+          bytes[i] = binary.charCodeAt(i);
+        }
+        return bytes.buffer;
+      }
+
+      async function deriveAesKey(password, saltBytes, iterations) {
+        const enc = new TextEncoder();
+        const keyMaterial = await window.crypto.subtle.importKey(
+          "raw",
+          enc.encode(password),
+          { name: "PBKDF2" },
+          false,
+          ["deriveKey"]
+        );
+        return window.crypto.subtle.deriveKey(
+          {
+            name: "PBKDF2",
+            salt: saltBytes,
+            iterations: iterations || PBKDF2_ITERATIONS,
+            hash: "SHA-256"
+          },
+          keyMaterial,
+          { name: "AES-GCM", length: 256 },
+          false,
+          ["encrypt", "decrypt"]
+        );
+      }
+
+      async function encryptVaultPayload(dataObj, password) {
+        const salt = window.crypto.getRandomValues(new Uint8Array(16));
+        const iv = window.crypto.getRandomValues(new Uint8Array(12));
+        const key = await deriveAesKey(password, salt, PBKDF2_ITERATIONS);
+        const enc = new TextEncoder();
+        const plaintext = enc.encode(JSON.stringify(dataObj));
+        const ciphertext = await window.crypto.subtle.encrypt(
+          { name: "AES-GCM", iv: iv },
+          key,
+          plaintext
+        );
+        return JSON.stringify({
+          v: 1,
+          alg: "AES-GCM",
+          kdf: "PBKDF2",
+          iter: PBKDF2_ITERATIONS,
+          salt: bufToBase64(salt.buffer),
+          iv: bufToBase64(iv.buffer),
+          ct: bufToBase64(ciphertext)
+        });
+      }
+
+      async function decryptVaultPayload(encryptedJsonString, password) {
+        let parsed;
+        try {
+          parsed = JSON.parse(encryptedJsonString);
+        } catch (e) {
+          throw new Error("Formato de bóveda inválido.");
+        }
+        if (!parsed || !parsed.salt || !parsed.iv || !parsed.ct) {
+          throw new Error("Estructura cifrada incompleta.");
+        }
+        const salt = new Uint8Array(base64ToBuf(parsed.salt));
+        const iv = new Uint8Array(base64ToBuf(parsed.iv));
+        const ciphertext = base64ToBuf(parsed.ct);
+        const iterations = Number(parsed.iter) || PBKDF2_ITERATIONS;
+
+        const key = await deriveAesKey(password, salt, iterations);
+        const decryptedBuf = await window.crypto.subtle.decrypt(
+          { name: "AES-GCM", iv: iv },
+          key,
+          ciphertext
+        );
+        const dec = new TextDecoder();
+        return JSON.parse(dec.decode(decryptedBuf));
+      }
+
+      async function saveVaultToStorage() {
+        if (!state.unlocked || !state.password) return false;
+        try {
+          const payload = {
+            updatedAt: Date.now(),
+            items: state.items
+          };
+          const encrypted = await encryptVaultPayload(payload, state.password);
+          return safeSetLocal(STORAGE_VAULT_KEY, encrypted);
+        } catch (err) {
+          console.error("Error al cifrar:", err);
+          showToast("Error al cifrar los datos.", "error");
+          return false;
+        }
+      }
+
+      /* ========================================================================
+         CONTROL DE INTENTOS FALLIDOS Y ESPERA CRECIENTE (30s, 1m, 2m... 10m)
+         ======================================================================== */
+      function getLockoutData() {
+        const raw = safeGetLocal(STORAGE_LOCKOUT_KEY);
+        if (!raw) return { failures: 0, lockedUntil: 0 };
+        try {
+          const data = JSON.parse(raw);
+          return {
+            failures: Number(data.failures) || 0,
+            lockedUntil: Number(data.lockedUntil) || 0
+          };
+        } catch (e) {
+          return { failures: 0, lockedUntil: 0 };
+        }
+      }
+
+      function saveLockoutData(data) {
+        safeSetLocal(STORAGE_LOCKOUT_KEY, JSON.stringify(data));
+      }
+
+      function computePenaltySeconds(failures) {
+        if (failures < 3) return 0;
+        // 3 fallos -> 30s, 4 -> 60s, 5 -> 120s, 6 -> 240s, 7 -> 480s, >=8 -> 600s (10 min)
+        const exponent = failures - 3;
+        const seconds = 30 * Math.pow(2, exponent);
+        return Math.min(seconds, 600);
+      }
+
+      function registerFailedAttempt() {
+        const data = getLockoutData();
+        data.failures += 1;
+        const penaltySec = computePenaltySeconds(data.failures);
+        if (penaltySec > 0) {
+          data.lockedUntil = Date.now() + penaltySec * 1000;
+        }
+        saveLockoutData(data);
+        updateLockoutUI();
+      }
+
+      function resetFailedAttempts() {
+        saveLockoutData({ failures: 0, lockedUntil: 0 });
+        updateLockoutUI();
+      }
+
+      function updateLockoutUI() {
+        const banner = document.getElementById("lockoutBanner");
+        const submitBtn = document.getElementById("unlockSubmitBtn");
+        const passInput = document.getElementById("unlockPass");
+
+        if (state.lockoutTimer) {
+          clearInterval(state.lockoutTimer);
+          state.lockoutTimer = null;
+        }
+
+        const check = () => {
+          const data = getLockoutData();
+          const remainingMs = data.lockedUntil - Date.now();
+          if (remainingMs > 0) {
+            const totalSec = Math.ceil(remainingMs / 1000);
+            const mins = Math.floor(totalSec / 60);
+            const secs = totalSec % 60;
+            const timeText = mins > 0
+              ? `${mins} min ${secs < 10 ? "0" : ""}${secs} s`
+              : `${secs} segundos`;
+            banner.textContent = `Demasiados intentos fallidos (${data.failures}). Espera ${timeText} antes de volver a intentarlo.`;
+            banner.classList.remove("hidden");
+            submitBtn.disabled = true;
+            passInput.disabled = true;
+          } else {
+            banner.classList.add("hidden");
+            submitBtn.disabled = false;
+            passInput.disabled = false;
+            if (state.lockoutTimer) {
+              clearInterval(state.lockoutTimer);
+              state.lockoutTimer = null;
+            }
+          }
+        };
+
+        check();
+        const data = getLockoutData();
+        if (data.lockedUntil > Date.now()) {
+          state.lockoutTimer = setInterval(check, 500);
+        }
+      }
+
+      /* ========================================================================
+         BLOQUEO AUTOMÁTICO POR INACTIVIDAD (5 MINUTOS) Y MANUAL
+         ======================================================================== */
+      function resetInactivityTimer() {
+        if (!state.unlocked) return;
+        if (state.inactivityTimer) {
+          clearTimeout(state.inactivityTimer);
+        }
+        state.inactivityTimer = setTimeout(() => {
+          lockVault("Bóveda bloqueada automáticamente tras 5 minutos de inactividad.");
+        }, INACTIVITY_LIMIT_MS);
+      }
+
+      function lockVault(reasonMessage) {
+        state.unlocked = false;
+        state.password = null;
+        state.items = [];
+        state.presentationMode = false;
+        state.expandedFrames.clear();
+        if (state.inactivityTimer) {
+          clearTimeout(state.inactivityTimer);
+          state.inactivityTimer = null;
+        }
+
+        // Limpiar DOM sensible para que no quede nada en memoria visual
+        document.getElementById("contentArea").innerHTML = "";
+        document.getElementById("exportBackupArea").value = "";
+        document.getElementById("importBackupArea").value = "";
+        document.getElementById("importBackupPass").value = "";
+        document.getElementById("settingsModal").classList.add("hidden");
+        document.getElementById("confirmModal").classList.add("hidden");
+        document.getElementById("itemEditorPanel").classList.add("hidden");
+
+        document.getElementById("appScreen").classList.add("hidden");
+        document.getElementById("authScreen").classList.remove("hidden");
+        renderAuthScreen();
+
+        if (reasonMessage) {
+          showToast(reasonMessage, "info");
+        }
+      }
+
+      ["mousemove", "mousedown", "keydown", "touchstart", "scroll"].forEach((evt) => {
+        window.addEventListener(evt, resetInactivityTimer, { passive: true });
+      });
+
+      /* ========================================================================
+         DETECCIÓN INTELIGENTE DE URL, IFRAMES, YOUTUBE, VIMEO, VÍDEO E IMAGEN
+         ======================================================================== */
+      function parseRawInput(rawText) {
+        const text = (rawText || "").trim();
+        let extractedUrl = text;
+        let extractedHeight = null;
+        let isIframeSnippet = false;
+
+        if (/<iframe\b/i.test(text)) {
+          isIframeSnippet = true;
+          const srcMatch = text.match(/\bsrc\s*=\s*["']([^"']+)["']/i) || text.match(/\bsrc\s*=\s*([^\s>]+)/i);
+          if (srcMatch && srcMatch[1]) {
+            extractedUrl = srcMatch[1].trim();
+          }
+          const heightMatch = text.match(/\bheight\s*=\s*["']?(\d+)(?:px)?["']?/i);
+          if (heightMatch && heightMatch[1]) {
+            const h = parseInt(heightMatch[1], 10);
+            if (h >= 100 && h <= 2000) {
+              extractedHeight = h;
+            }
+          }
+        } else {
+          extractedUrl = unwrapGoogleRedirectUrl(extractedUrl);
+        }
+
+        return {
+          url: extractedUrl,
+          height: extractedHeight,
+          isIframeSnippet: isIframeSnippet
+        };
+      }
+
+      function unwrapGoogleRedirectUrl(url) {
+        const clean = (url || "").trim();
+        try {
+          const u = new URL(clean);
+          const host = u.hostname.replace(/^www\./i, "").toLowerCase();
+          // Extraer URL directa de imagen o destino cuando se copia un enlace de Google Imágenes (imgres) o redirección (url)
+          if (host === "google.com" || host.startsWith("google.") || host === "images.google.com") {
+            const imgUrl = u.searchParams.get("imgurl");
+            if (imgUrl && /^https?:\/\//i.test(imgUrl)) {
+              return imgUrl;
+            }
+            const redirectUrl = u.searchParams.get("url") || u.searchParams.get("q");
+            if (redirectUrl && /^https?:\/\//i.test(redirectUrl)) {
+              return redirectUrl;
+            }
+          }
+        } catch (e) {
+          // Ignorar si no es una URL válida aún
+        }
+        return clean;
+      }
+
+      function isLikelyImageUrl(url) {
+        const clean = (url || "").trim();
+        const pathWithoutQuery = clean.split(/[?#]/)[0].toLowerCase();
+        if (/\.(jpg|jpeg|png|gif|webp|svg|avif|bmp|ico)$/i.test(pathWithoutQuery)) {
+          return true;
+        }
+        try {
+          const u = new URL(clean);
+          const host = u.hostname.toLowerCase();
+          const full = clean.toLowerCase();
+          // URLs dinámicas de imágenes (Google encrypted-tbn, Unsplash, Wikimedia, Cloudinary, ImgBB, etc.)
+          if (
+            host.includes("gstatic.com") ||
+            host.includes("googleusercontent.com") ||
+            host.includes("ggpht.com") ||
+            host === "images.unsplash.com" ||
+            host === "pbs.twimg.com" ||
+            host === "i.pinimg.com" ||
+            host === "i.imgur.com" ||
+            host === "i.ibb.co" ||
+            host.includes("cloudinary.com")
+          ) {
+            return true;
+          }
+          // Parámetros típicos de formato de imagen en CDN sin extensión en la ruta
+          const fmt = (u.searchParams.get("format") || u.searchParams.get("fm") || u.searchParams.get("ext") || "").toLowerCase();
+          if (/^(jpg|jpeg|png|webp|gif|avif|svg)$/.test(fmt)) {
+            return true;
+          }
+          if (/[?&](imgurl|image)=/i.test(full) && !host.includes("google.")) {
+            return true;
+          }
+        } catch (e) {
+          return false;
+        }
+        return false;
+      }
+
+      function convertEmbedUrl(url) {
+        const cleanUrl = (url || "").trim();
+        try {
+          const u = new URL(cleanUrl);
+          const host = u.hostname.replace(/^www\./i, "").toLowerCase();
+
+          // YouTube: watch?v=, youtu.be/, shorts/, live/, embed/
+          if (host === "youtube.com" || host === "m.youtube.com" || host === "music.youtube.com") {
+            if (u.pathname === "/watch" && u.searchParams.get("v")) {
+              const id = u.searchParams.get("v");
+              return { embedUrl: `https://www.youtube.com/embed/${encodeURIComponent(id)}`, provider: "YouTube" };
+            }
+            const shortsMatch = u.pathname.match(/^\/shorts\/([a-zA-Z0-9_-]+)/);
+            if (shortsMatch) {
+              return { embedUrl: `https://www.youtube.com/embed/${encodeURIComponent(shortsMatch[1])}`, provider: "YouTube Shorts" };
+            }
+            const liveMatch = u.pathname.match(/^\/live\/([a-zA-Z0-9_-]+)/);
+            if (liveMatch) {
+              return { embedUrl: `https://www.youtube.com/embed/${encodeURIComponent(liveMatch[1])}`, provider: "YouTube Live" };
+            }
+            if (u.pathname.startsWith("/embed/")) {
+              return { embedUrl: cleanUrl, provider: "YouTube" };
+            }
+          }
+
+          if (host === "youtu.be") {
+            const id = u.pathname.replace(/^\/+/, "").split("/")[0];
+            if (id) {
+              return { embedUrl: `https://www.youtube.com/embed/${encodeURIComponent(id)}`, provider: "YouTube" };
+            }
+          }
+
+          // Vimeo: vimeo.com/12345678 o vimeo.com/channels/.../12345678
+          if (host === "vimeo.com") {
+            const vimeoMatch = u.pathname.match(/\/(\d+)(?:\/|$)/);
+            if (vimeoMatch) {
+              return { embedUrl: `https://player.vimeo.com/video/${vimeoMatch[1]}`, provider: "Vimeo" };
+            }
+          }
+          if (host === "player.vimeo.com") {
+            return { embedUrl: cleanUrl, provider: "Vimeo" };
+          }
+        } catch (e) {
+          // URL no válida para objeto URL; se devuelve tal cual
+        }
+        return { embedUrl: cleanUrl, provider: null };
+      }
+
+      function detectMediaKind(url, userType, wasIframeCode) {
+        const clean = unwrapGoogleRedirectUrl((url || "").trim());
+        const pathWithoutQuery = clean.split(/[?#]/)[0].toLowerCase();
+
+        if (/\.(mp4|webm|ogg|mov)$/i.test(pathWithoutQuery)) {
+          return "video";
+        }
+        if (isLikelyImageUrl(clean)) {
+          return "image";
+        }
+
+        const converted = convertEmbedUrl(clean);
+        if (converted.provider) {
+          return "iframe";
+        }
+
+        if (wasIframeCode || userType === "frame") {
+          return "iframe";
+        }
+
+        return "link";
+      }
+
+      function isInsecureHttp(url) {
+        return /^http:\/\//i.test((url || "").trim());
+      }
+
+      /* ========================================================================
+         COLOR DETERMINISTA POR CATEGORÍA PARA EL CUADRADO CON INICIAL
+         ======================================================================== */
+      const CATEGORY_PALETTE = [
+        "#2563eb", "#7c3aed", "#db2777", "#dc2626",
+        "#d97706", "#059669", "#0891b2", "#4f46e5",
+        "#9333ea", "#0d9488", "#ea580c", "#16a34a"
+      ];
+
+      function getCategoryColor(category) {
+        const str = (category || "General").trim().toLowerCase();
+        let hash = 0;
+        for (let i = 0; i < str.length; i++) {
+          hash = str.charCodeAt(i) + ((hash << 5) - hash);
+        }
+        const index = Math.abs(hash) % CATEGORY_PALETTE.length;
+        return CATEGORY_PALETTE[index];
+      }
+
+      function getInitial(text) {
+        const clean = (text || "").trim();
+        if (!clean) return "#";
+        return clean.charAt(0).toUpperCase();
+      }
+
+      /* ========================================================================
+         GESTIÓN DE TEMA (CLARO / OSCURO)
+         ======================================================================== */
+      function applyTheme(theme) {
+        if (theme === "light" || theme === "dark") {
+          document.documentElement.setAttribute("data-theme", theme);
+          safeSetLocal(STORAGE_THEME_KEY, theme);
+        } else {
+          document.documentElement.removeAttribute("data-theme");
+        }
+        updateThemeButtonsLabel();
+      }
+
+      function toggleTheme() {
+        const current = document.documentElement.getAttribute("data-theme");
+        const prefersDark = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
+        const effectiveDark = current ? current === "dark" : prefersDark;
+        applyTheme(effectiveDark ? "light" : "dark");
+      }
+
+      function updateThemeButtonsLabel() {
+        const current = document.documentElement.getAttribute("data-theme");
+        const prefersDark = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
+        const isDark = current ? current === "dark" : prefersDark;
+        const label = isDark ? "Modo claro" : "Modo oscuro";
+        const b1 = document.getElementById("themeToggleBtn");
+        const b2 = document.getElementById("authThemeBtn");
+        if (b1) b1.textContent = label;
+        if (b2) b2.textContent = label;
+      }
+
+      /* ========================================================================
+         PANTALLA DE AUTENTICACIÓN (CREAR / DESBLOQUEAR)
+         ======================================================================== */
+      function renderAuthScreen() {
+        const existingVault = safeGetLocal(STORAGE_VAULT_KEY);
+        const setupView = document.getElementById("setupView");
+        const unlockView = document.getElementById("unlockView");
+
+        document.getElementById("setupError").classList.add("hidden");
+        document.getElementById("unlockError").classList.add("hidden");
+        document.getElementById("setupPass1").value = "";
+        document.getElementById("setupPass2").value = "";
+        document.getElementById("unlockPass").value = "";
+
+        if (!existingVault) {
+          setupView.classList.remove("hidden");
+          unlockView.classList.add("hidden");
+        } else {
+          setupView.classList.add("hidden");
+          unlockView.classList.remove("hidden");
+          updateLockoutUI();
+        }
+      }
+
+      async function handleCreateVault() {
+        const p1 = document.getElementById("setupPass1").value;
+        const p2 = document.getElementById("setupPass2").value;
+        const errBox = document.getElementById("setupError");
+        const btn = document.getElementById("setupSubmitBtn");
+
+        errBox.classList.add("hidden");
+
+        if (!p1 || p1.length < 6) {
+          errBox.textContent = "La contraseña debe tener al menos 6 caracteres.";
+          errBox.classList.remove("hidden");
+          return;
+        }
+        if (p1 !== p2) {
+          errBox.textContent = "Las contraseñas no coinciden.";
+          errBox.classList.remove("hidden");
+          return;
+        }
+
+        btn.disabled = true;
+        btn.textContent = "Cifrando bóveda...";
+
+        try {
+          state.unlocked = true;
+          state.password = p1;
+          state.items = [];
+          const ok = await saveVaultToStorage();
+          if (ok) {
+            enterVaultUI();
+            showToast("Bóveda creada y cifrada correctamente.", "success");
+          } else {
+            state.unlocked = false;
+            state.password = null;
+          }
+        } finally {
+          btn.disabled = false;
+          btn.textContent = "Crear y abrir bóveda";
+        }
+      }
+
+      async function handleUnlockVault() {
+        const lockout = getLockoutData();
+        if (lockout.lockedUntil > Date.now()) {
+          updateLockoutUI();
+          return;
+        }
+
+        const pass = document.getElementById("unlockPass").value;
+        const errBox = document.getElementById("unlockError");
+        const btn = document.getElementById("unlockSubmitBtn");
+
+        errBox.classList.add("hidden");
+
+        if (!pass) {
+          errBox.textContent = "Introduce tu contraseña.";
+          errBox.classList.remove("hidden");
+          return;
+        }
+
+        const rawVault = safeGetLocal(STORAGE_VAULT_KEY);
+        if (!rawVault) {
+          renderAuthScreen();
+          return;
+        }
+
+        btn.disabled = true;
+        btn.textContent = "Descifrando...";
+
+        try {
+          const decrypted = await decryptVaultPayload(rawVault, pass);
+          resetFailedAttempts();
+          state.unlocked = true;
+          state.password = pass;
+          state.items = Array.isArray(decrypted.items) ? decrypted.items : [];
+          enterVaultUI();
+        } catch (err) {
+          registerFailedAttempt();
+          errBox.textContent = "Contraseña incorrecta o datos dañados.";
+          errBox.classList.remove("hidden");
+          document.getElementById("unlockPass").value = "";
+        } finally {
+          btn.disabled = false;
+          btn.textContent = "Desbloquear bóveda";
+          updateLockoutUI();
+        }
+      }
+
+      function enterVaultUI() {
+        document.getElementById("authScreen").classList.add("hidden");
+        document.getElementById("appScreen").classList.remove("hidden");
+        resetInactivityTimer();
+        renderApp();
+      }
+
+      /* ========================================================================
+         OPERACIONES CRUD SOBRE ELEMENTOS DE LA BÓVEDA
+         ======================================================================== */
+      function openEditorForNew() {
+        document.getElementById("editItemId").value = "";
+        document.getElementById("editorHeading").textContent = "Añadir nuevo elemento";
+        document.getElementById("itemTitleInput").value = "";
+        document.getElementById("itemRawInput").value = "";
+        document.getElementById("itemShowcaseCheck").checked = (state.activeTab === "showcase");
+        document.getElementById("itemNoteInput").value = "";
+        document.getElementById("autoDetectHint").textContent = "";
+        document.getElementById("editorLivePreview").innerHTML = "";
+        document.getElementById("editorLivePreview").classList.add("hidden");
+        document.getElementById("editorError").classList.add("hidden");
+
+        document.getElementById("itemEditorPanel").classList.remove("hidden");
+        document.getElementById("itemTitleInput").focus();
+      }
+
+      function openEditorForEdit(itemId) {
+        const item = state.items.find((x) => x.id === itemId);
+        if (!item) return;
+
+        document.getElementById("editItemId").value = item.id;
+        document.getElementById("editorHeading").textContent = "Editar elemento";
+        document.getElementById("itemTitleInput").value = item.title || "";
+        document.getElementById("itemRawInput").value = item.url || "";
+        document.getElementById("itemShowcaseCheck").checked = Boolean(item.showcase);
+        document.getElementById("itemNoteInput").value = item.note || "";
+        document.getElementById("autoDetectHint").textContent = "";
+        document.getElementById("editorError").classList.add("hidden");
+
+        document.getElementById("itemEditorPanel").classList.remove("hidden");
+        handleRawInputChange();
+        document.getElementById("itemEditorPanel").scrollIntoView({ behavior: "smooth", block: "nearest" });
+      }
+
+      function renderEditorLivePreview(url, mediaKind, height) {
+        const box = document.getElementById("editorLivePreview");
+        if (!url || !/^https?:\/\//i.test(url)) {
+          box.innerHTML = "";
+          box.classList.add("hidden");
+          return;
+        }
+
+        const safeHeight = Math.min(Math.max(parseInt(height, 10) || 280, 140), 420);
+
+        if (mediaKind === "video") {
+          const safeSrc = escapeHTML(sanitizeUrlForHref(url));
+          box.innerHTML = `
+            <div class="live-preview-header">
+              <span>Vista previa en vivo · Vídeo</span>
+            </div>
+            <div class="live-preview-body">
+              <video controls preload="metadata" src="${safeSrc}"></video>
+            </div>
+          `;
+          box.classList.remove("hidden");
+          return;
+        }
+
+        if (mediaKind === "image") {
+          const safeSrc = escapeHTML(sanitizeUrlForHref(url));
+          box.innerHTML = `
+            <div class="live-preview-header">
+              <span>Vista previa en vivo · Imagen</span>
+            </div>
+            <div class="live-preview-body">
+              <img src="${safeSrc}" alt="Vista previa de imagen" />
+            </div>
+          `;
+          box.classList.remove("hidden");
+          return;
+        }
+
+        // Frame (iframe, YouTube/Vimeo o página web)
+        const conv = convertEmbedUrl(url);
+        const safeEmbed = escapeHTML(sanitizeUrlForHref(conv.embedUrl));
+        box.innerHTML = `
+          <div class="live-preview-header">
+            <span>Vista previa en vivo · ${conv.provider ? escapeHTML(conv.provider) : "Frame / Página"}</span>
+          </div>
+          <div class="live-preview-body">
+            <iframe
+              src="${safeEmbed}"
+              title="Vista previa del frame"
+              height="${safeHeight}"
+              sandbox="allow-scripts allow-same-origin allow-popups allow-forms allow-presentation"
+              allow="fullscreen; autoplay; encrypted-media; picture-in-picture; clipboard-write"
+              referrerpolicy="strict-origin-when-cross-origin"
+              allowfullscreen
+            ></iframe>
+          </div>
+        `;
+        box.classList.remove("hidden");
+      }
+
+      function handleRawInputChange() {
+        const raw = document.getElementById("itemRawInput").value;
+        const hint = document.getElementById("autoDetectHint");
+        const parsed = parseRawInput(raw);
+        const editId = document.getElementById("editItemId").value;
+        const existingItem = editId ? state.items.find((x) => x.id === editId) : null;
+        const fallbackHeight = existingItem?.height || 360;
+
+        if (parsed.isIframeSnippet) {
+          const finalH = parsed.height || fallbackHeight;
+          hint.textContent = `Código <iframe> detectado: URL extraída y marcado como Frame${parsed.height ? ` (${parsed.height} px)` : ""}.`;
+          renderEditorLivePreview(parsed.url, "iframe", finalH);
+          return;
+        }
+
+        const baseType = existingItem ? existingItem.type : "link";
+        const mediaKind = detectMediaKind(parsed.url, baseType, false);
+        if (mediaKind === "video") {
+          hint.textContent = "Vídeo directo detectado: se reproducirá con reproductor HTML5.";
+        } else if (mediaKind === "image") {
+          hint.textContent = "Imagen detectada: se mostrará miniatura y visor ampliado.";
+        } else {
+          const conv = convertEmbedUrl(parsed.url);
+          if (conv.provider) {
+            hint.textContent = `Enlace de ${conv.provider} detectado: se convertirá automáticamente a reproductor embebido.`;
+          } else if (/^https?:\/\//i.test(parsed.url)) {
+            hint.textContent = "Enlace web detectado: podrás abrirlo o intentar cargarlo en un frame.";
+          } else {
+            hint.textContent = "";
+          }
+        }
+
+        renderEditorLivePreview(parsed.url, mediaKind, fallbackHeight);
+      }
+
+      async function handleSaveItem() {
+        const errBox = document.getElementById("editorError");
+        errBox.classList.add("hidden");
+
+        const editId = document.getElementById("editItemId").value;
+        const existingItem = editId ? state.items.find((x) => x.id === editId) : null;
+        const title = document.getElementById("itemTitleInput").value.trim();
+        const category = existingItem?.category || "General";
+        const rawInput = document.getElementById("itemRawInput").value.trim();
+        const showcase = document.getElementById("itemShowcaseCheck").checked;
+        const note = document.getElementById("itemNoteInput").value.trim();
+
+        if (!title) {
+          errBox.textContent = "El título es obligatorio.";
+          errBox.classList.remove("hidden");
+          return;
+        }
+        if (!rawInput) {
+          errBox.textContent = "Debes introducir una URL o código <iframe>.";
+          errBox.classList.remove("hidden");
+          return;
+        }
+
+        const parsed = parseRawInput(rawInput);
+        const finalUrl = parsed.url;
+
+        if (!/^https?:\/\//i.test(finalUrl)) {
+          errBox.textContent = "La URL debe comenzar por https:// o http://";
+          errBox.classList.remove("hidden");
+          return;
+        }
+
+        let height = parsed.height || existingItem?.height || 360;
+        if (isNaN(height) || height < 120 || height > 2000) {
+          height = 360;
+        }
+
+        // Detección automática de frame, vídeo, imagen o enlace
+        const detectedKind = detectMediaKind(finalUrl, "link", parsed.isIframeSnippet);
+        const effectiveType = (detectedKind === "iframe" || detectedKind === "video" || detectedKind === "image")
+          ? "frame"
+          : "link";
+
+        if (editId && existingItem) {
+          const idx = state.items.findIndex((x) => x.id === editId);
+          if (idx !== -1) {
+            state.items[idx] = {
+              ...state.items[idx],
+              title,
+              url: finalUrl,
+              category,
+              type: effectiveType,
+              mediaKind: detectedKind,
+              note,
+              height,
+              showcase
+            };
+          }
+        } else {
+          const newItem = {
+            id: "itm_" + Date.now() + "_" + Math.random().toString(36).slice(2, 8),
+            title,
+            url: finalUrl,
+            category: "General",
+            type: effectiveType,
+            mediaKind: detectedKind,
+            tags: [],
+            note,
+            height,
+            showcase,
+            favorite: false,
+            trashed: false,
+            createdAt: new Date().toISOString()
+          };
+          state.items.unshift(newItem);
+        }
+
+        await saveVaultToStorage();
+        document.getElementById("itemEditorPanel").classList.add("hidden");
+        renderApp();
+        showToast(editId ? "Elemento actualizado." : "Elemento guardado en la bóveda.", "success");
+      }
+
+      async function toggleFavorite(itemId) {
+        const item = state.items.find((x) => x.id === itemId);
+        if (!item) return;
+        item.favorite = !item.favorite;
+        await saveVaultToStorage();
+        renderApp();
+      }
+
+      async function toggleShowcase(itemId) {
+        const item = state.items.find((x) => x.id === itemId);
+        if (!item) return;
+        item.showcase = !item.showcase;
+        await saveVaultToStorage();
+        renderApp();
+        showToast(item.showcase ? "Visible en el Escaparate." : "Marcado como Privado.");
+      }
+
+      async function moveToTrash(itemId) {
+        const item = state.items.find((x) => x.id === itemId);
+        if (!item) return;
+        item.trashed = true;
+        state.expandedFrames.delete(itemId);
+        await saveVaultToStorage();
+        renderApp();
+        showToast("Elemento movido a la Papelera.");
+      }
+
+      async function restoreFromTrash(itemId) {
+        const item = state.items.find((x) => x.id === itemId);
+        if (!item) return;
+        item.trashed = false;
+        await saveVaultToStorage();
+        renderApp();
+        showToast("Elemento restaurado.", "success");
+      }
+
+      function requestPermanentDelete(itemId) {
+        const item = state.items.find((x) => x.id === itemId);
+        if (!item) return;
+        openDoubleConfirm(
+          `Vas a eliminar definitivamente «${item.title}».`,
+          async () => {
+            state.items = state.items.filter((x) => x.id !== itemId);
+            state.expandedFrames.delete(itemId);
+            await saveVaultToStorage();
+            renderApp();
+            showToast("Elemento eliminado definitivamente.");
+          }
+        );
+      }
+
+      function requestEmptyTrash() {
+        const trashedCount = state.items.filter((x) => x.trashed).length;
+        if (trashedCount === 0) return;
+        openDoubleConfirm(
+          `Vas a eliminar definitivamente los ${trashedCount} elementos de la Papelera.`,
+          async () => {
+            state.items = state.items.filter((x) => !x.trashed);
+            await saveVaultToStorage();
+            renderApp();
+            showToast("Papelera vaciada.");
+          }
+        );
+      }
+
+      /* ========================================================================
+         MODAL DE DOBLE CONFIRMACIÓN (SIN USAR confirm())
+         ======================================================================== */
+      function openDoubleConfirm(message, onConfirmed) {
+        state.confirmCallback = onConfirmed;
+        state.confirmStep = 1;
+        document.getElementById("confirmMessage").textContent = message;
+        document.getElementById("confirmStep2Box").classList.add("hidden");
+        document.getElementById("confirmProceedBtn").textContent = "Eliminar";
+        document.getElementById("confirmModal").classList.remove("hidden");
+      }
+
+      async function handleConfirmProceed() {
+        if (state.confirmStep === 1) {
+          state.confirmStep = 2;
+          document.getElementById("confirmStep2Box").classList.remove("hidden");
+          document.getElementById("confirmProceedBtn").textContent = "Sí, borrar definitivamente";
+          return;
+        }
+        const cb = state.confirmCallback;
+        closeConfirmModal();
+        if (typeof cb === "function") {
+          await cb();
+        }
+      }
+
+      function closeConfirmModal() {
+        state.confirmCallback = null;
+        state.confirmStep = 1;
+        document.getElementById("confirmModal").classList.add("hidden");
+      }
+
+      /* ========================================================================
+         PANTALLA COMPLETA PARA ELEMENTOS EMBEBIDOS
+         ======================================================================== */
+      function requestEmbedFullscreen(wrapperId) {
+        const el = document.getElementById(wrapperId);
+        if (!el) return;
+        const target = el.querySelector("iframe, video, img") || el;
+        if (target.requestFullscreen) {
+          target.requestFullscreen().catch(() => {
+            showToast("El navegador no permitió activar pantalla completa.", "error");
+          });
+        } else if (target.webkitRequestFullscreen) {
+          target.webkitRequestFullscreen();
+        } else {
+          showToast("Pantalla completa no compatible en este dispositivo.", "error");
+        }
+      }
+
+      /* ========================================================================
+         RENDERIZADO DE LA INTERFAZ, PESTAÑAS, CATEGORÍAS Y TARJETAS
+         ======================================================================== */
+      function isItemEmbeddable(item) {
+        const kind = detectMediaKind(item.url, item.type, item.type === "frame");
+        return kind === "iframe" || kind === "video" || kind === "image";
+      }
+
+      function canAttemptFramePreview(item) {
+        return /^https?:\/\//i.test((item.url || "").trim());
+      }
+
+      function updateCounters() {
+        const activeItems = state.items.filter((x) => !x.trashed);
+        document.getElementById("count-all").textContent = activeItems.length;
+        document.getElementById("count-favorites").textContent = activeItems.filter((x) => x.favorite).length;
+        document.getElementById("count-frames").textContent = activeItems.filter((x) => isItemEmbeddable(x)).length;
+        document.getElementById("count-showcase").textContent = activeItems.filter((x) => x.showcase).length;
+        document.getElementById("count-trash").textContent = state.items.filter((x) => x.trashed).length;
+      }
+
+      function formatCreationDate(isoStr) {
+        if (!isoStr) return "";
+        try {
+          const d = new Date(isoStr);
+          return d.toLocaleDateString("es-ES", {
+            day: "2-digit",
+            month: "short",
+            year: "numeric"
+          });
+        } catch (e) {
+          return "";
+        }
+      }
+
+      function renderEmbedBlock(item) {
+        const kind = detectMediaKind(item.url, item.type, item.type === "frame");
+        const height = Number(item.height) || 360;
+        const wrapperId = `embed_${item.id}`;
+
+        if (kind === "video") {
+          const safeSrc = escapeHTML(sanitizeUrlForHref(item.url));
+          return `
+            <div id="${wrapperId}" class="embed-wrapper">
+              <video controls preload="metadata" src="${safeSrc}"></video>
+              <div class="embed-bar">
+                <p class="embed-hint">Vídeo directo HTML5</p>
+                <button type="button" class="btn btn-secondary btn-sm" data-action="fullscreen" data-target="${wrapperId}">
+                  Pantalla completa
+                </button>
+              </div>
+            </div>
+          `;
+        }
+
+        if (kind === "image") {
+          const safeSrc = escapeHTML(sanitizeUrlForHref(item.url));
+          const safeAlt = escapeHTML(item.title);
+          return `
+            <div id="${wrapperId}" class="embed-wrapper">
+              <img src="${safeSrc}" alt="${safeAlt}" loading="lazy" />
+              <div class="embed-bar">
+                <p class="embed-hint">Imagen incrustada</p>
+                <button type="button" class="btn btn-secondary btn-sm" data-action="fullscreen" data-target="${wrapperId}">
+                  Pantalla completa
+                </button>
+              </div>
+            </div>
+          `;
+        }
+
+        // Frame HTML
+        const converted = convertEmbedUrl(item.url);
+        const safeEmbedSrc = escapeHTML(sanitizeUrlForHref(converted.embedUrl));
+        const safeTitle = escapeHTML(item.title);
+
+        return `
+          <div id="${wrapperId}" class="embed-wrapper">
+            <iframe
+              src="${safeEmbedSrc}"
+              title="${safeTitle}"
+              height="${height}"
+              loading="lazy"
+              sandbox="allow-scripts allow-same-origin allow-popups allow-forms allow-presentation"
+              allow="fullscreen; autoplay; encrypted-media; picture-in-picture; clipboard-write"
+              referrerpolicy="strict-origin-when-cross-origin"
+              allowfullscreen
+            ></iframe>
+            <div class="embed-bar">
+              <p class="embed-hint">Si se ve en blanco, ese sitio no permite mostrarse dentro de otra página.</p>
+              <button type="button" class="btn btn-secondary btn-sm" data-action="fullscreen" data-target="${wrapperId}">
+                Pantalla completa
+              </button>
+            </div>
+          </div>
+        `;
+      }
+
+      function renderItemCard(item, forceLoadedFrames) {
+        const resolvedUrl = unwrapGoogleRedirectUrl(item.url);
+        const catColor = getCategoryColor(item.category);
+        const catInitial = escapeHTML(getInitial(item.category));
+        const titleEsc = escapeHTML(item.title);
+        const urlEsc = escapeHTML(resolvedUrl);
+        const hrefEsc = escapeHTML(sanitizeUrlForHref(resolvedUrl));
+        const noteEsc = escapeHTML(item.note);
+        const dateEsc = escapeHTML(formatCreationDate(item.createdAt));
+        const httpWarning = isInsecureHttp(resolvedUrl);
+        const embeddable = isItemEmbeddable(item);
+        const canPreview = canAttemptFramePreview(item);
+        const kind = detectMediaKind(resolvedUrl, item.type, item.type === "frame");
+
+        const isFrameVisible = canPreview && (forceLoadedFrames || state.expandedFrames.has(item.id));
+        const showImageThumbnail = kind === "image" && !isFrameVisible;
+
+        const typeLabel = kind === "video"
+          ? "Vídeo"
+          : kind === "image"
+            ? "Imagen"
+            : embeddable
+              ? "Frame"
+              : "Enlace";
+
+        const tagsHtml = (item.tags || []).length > 0
+          ? `<div class="item-tags">${item.tags.map((t) => `<span class="tag-chip">#${escapeHTML(t)}</span>`).join("")}</div>`
+          : "";
+
+        const thumbnailHtml = showImageThumbnail
+          ? `<div class="item-thumb-wrap" data-action="toggle-frame" data-id="${item.id}" title="Pulsa para ampliar imagen">
+              <img src="${hrefEsc}" alt="${titleEsc}" loading="lazy" />
+            </div>`
+          : "";
+
+        // En Modo Presentación se ocultan botones de edición/borrado/privacidad
+        if (state.presentationMode) {
+          return `
+            <article class="item-card">
+              <div class="item-top">
+                <div class="item-avatar" style="background-color:${catColor};" title="${escapeHTML(item.category)}">${catInitial}</div>
+                <div class="item-main">
+                  <div class="item-title-row">
+                    <h3 class="item-title">${titleEsc}</h3>
+                  </div>
+                  <a class="item-url" href="${hrefEsc}" target="_blank" rel="noopener noreferrer">${urlEsc}</a>
+                  <div class="item-badges">
+                    <span class="badge badge-accent">${typeLabel}</span>
+                    ${httpWarning ? `<span class="badge badge-warning">Sin HTTPS (HTTP)</span>` : ""}
+                  </div>
+                </div>
+              </div>
+              ${item.note ? `<p class="item-note">${noteEsc}</p>` : ""}
+              ${tagsHtml}
+              ${isFrameVisible ? renderEmbedBlock({ ...item, url: resolvedUrl }) : ""}
+              <div class="item-footer">
+                <span class="item-date">${dateEsc}</span>
+                <div class="item-actions">
+                  <a class="btn btn-secondary btn-sm" href="${hrefEsc}" target="_blank" rel="noopener noreferrer" style="text-decoration:none;">Abrir enlace</a>
+                </div>
+              </div>
+            </article>
+          `;
+        }
+
+        // Vista normal dentro de la bóveda
+        const actionsHtml = item.trashed
+          ? `
+            <button type="button" class="btn btn-success btn-sm" data-action="restore" data-id="${item.id}">Restaurar</button>
+            <button type="button" class="btn btn-danger btn-sm" data-action="delete-perm" data-id="${item.id}">Borrar definitivamente</button>
+          `
+          : `
+            ${canPreview && !forceLoadedFrames ? `
+              <button type="button" class="btn btn-primary btn-sm" data-action="toggle-frame" data-id="${item.id}">
+                ${isFrameVisible ? "Ocultar" : (kind === "image" ? "Ampliar" : "Ver frame")}
+              </button>
+            ` : ""}
+            <a class="btn btn-secondary btn-sm" href="${hrefEsc}" target="_blank" rel="noopener noreferrer" style="text-decoration:none;">Abrir link</a>
+            <button type="button" class="visibility-toggle ${item.showcase ? "is-visible" : ""}" data-action="toggle-showcase" data-id="${item.id}" title="Alternar visibilidad en el Escaparate">
+              ${item.showcase ? "Visible" : "Privado"}
+            </button>
+            <button type="button" class="btn btn-secondary btn-sm" data-action="edit" data-id="${item.id}">Editar</button>
+            <button type="button" class="btn btn-danger btn-sm" data-action="trash" data-id="${item.id}">Borrar</button>
+          `;
+
+        return `
+          <article class="item-card">
+            <div class="item-top">
+              <div class="item-avatar" style="background-color:${catColor};" title="${escapeHTML(item.category)}">${catInitial}</div>
+              <div class="item-main">
+                <div class="item-title-row">
+                  <h3 class="item-title">${titleEsc}</h3>
+                  ${!item.trashed ? `
+                    <button type="button" class="star-btn ${item.favorite ? "starred" : ""}" data-action="favorite" data-id="${item.id}" title="${item.favorite ? "Quitar de favoritos" : "Marcar como favorito"}">
+                      ${item.favorite ? "★" : "☆"}
+                    </button>
+                  ` : ""}
+                </div>
+                <a class="item-url" href="${hrefEsc}" target="_blank" rel="noopener noreferrer">${urlEsc}</a>
+                <div class="item-badges">
+                  <span class="badge badge-accent">${typeLabel}</span>
+                  ${httpWarning ? `<span class="badge badge-warning">Sin HTTPS (HTTP)</span>` : ""}
+                  ${item.showcase ? `<span class="badge badge-success">Escaparate</span>` : ""}
+                </div>
+              </div>
+            </div>
+
+            ${item.note ? `<p class="item-note">${noteEsc}</p>` : ""}
+            ${tagsHtml}
+            ${thumbnailHtml}
+            ${isFrameVisible ? renderEmbedBlock({ ...item, url: resolvedUrl }) : ""}
+
+            <div class="item-footer">
+              <span class="item-date">${dateEsc}</span>
+              <div class="item-actions">
+                ${actionsHtml}
+              </div>
+            </div>
+          </article>
+        `;
+      }
+
+      function renderApp() {
+        if (!state.unlocked) return;
+
+        updateCounters();
+
+        // Gestión visual del Modo Presentación
+        const mainTopbar = document.getElementById("mainTopbar");
+        const presentationBanner = document.getElementById("presentationBanner");
+        const tabsNav = document.getElementById("tabsNav");
+        const toolbarSection = document.getElementById("toolbarSection");
+        const editorPanel = document.getElementById("itemEditorPanel");
+        const trashBanner = document.getElementById("trashBanner");
+        const vaultFooter = document.getElementById("vaultFooter");
+
+        if (state.presentationMode) {
+          mainTopbar.classList.add("hidden");
+          tabsNav.classList.add("hidden");
+          toolbarSection.classList.add("hidden");
+          editorPanel.classList.add("hidden");
+          trashBanner.classList.add("hidden");
+          vaultFooter.classList.add("hidden");
+          presentationBanner.classList.remove("hidden");
+        } else {
+          mainTopbar.classList.remove("hidden");
+          tabsNav.classList.remove("hidden");
+          toolbarSection.classList.remove("hidden");
+          vaultFooter.classList.remove("hidden");
+          presentationBanner.classList.add("hidden");
+          if (state.activeTab === "trash") {
+            trashBanner.classList.remove("hidden");
+          } else {
+            trashBanner.classList.add("hidden");
+          }
+        }
+
+        // Actualizar estado activo de botones de pestaña y vista
+        document.querySelectorAll(".tab-btn").forEach((btn) => {
+          btn.classList.toggle("active", btn.getAttribute("data-tab") === state.activeTab);
+        });
+        document.getElementById("viewGridBtn").classList.toggle("btn-primary", state.viewMode === "grid");
+        document.getElementById("viewGridBtn").classList.toggle("btn-secondary", state.viewMode !== "grid");
+        document.getElementById("viewListBtn").classList.toggle("btn-primary", state.viewMode === "list");
+        document.getElementById("viewListBtn").classList.toggle("btn-secondary", state.viewMode !== "list");
+
+        // Filtrado de elementos según pestaña o Modo Presentación
+        const effectiveTab = state.presentationMode ? "showcase" : state.activeTab;
+        const query = state.presentationMode ? "" : state.searchQuery.trim().toLowerCase();
+        const typeFilter = state.presentationMode ? "all" : state.typeFilter;
+
+        let filtered = state.items.filter((item) => {
+          if (effectiveTab === "trash") {
+            if (!item.trashed) return false;
+          } else {
+            if (item.trashed) return false;
+            if (effectiveTab === "favorites" && !item.favorite) return false;
+            if (effectiveTab === "frames" && !isItemEmbeddable(item)) return false;
+            if (effectiveTab === "showcase" && !item.showcase) return false;
+          }
+
+          if (typeFilter === "frame" && !isItemEmbeddable(item)) return false;
+          if (typeFilter === "link" && isItemEmbeddable(item)) return false;
+
+          if (query) {
+            const haystack = [
+              item.title,
+              item.url,
+              item.category,
+              item.note,
+              (item.tags || []).join(" ")
+            ].join(" ").toLowerCase();
+            if (!haystack.includes(query)) return false;
+          }
+
+          return true;
+        });
+
+        // Ordenar: Favoritos primero, luego más recientes
+        filtered.sort((a, b) => {
+          if (a.favorite !== b.favorite) return a.favorite ? -1 : 1;
+          return new Date(b.createdAt || 0) - new Date(a.createdAt || 0);
+        });
+
+        const contentArea = document.getElementById("contentArea");
+
+        if (filtered.length === 0) {
+          const emptyMsg = effectiveTab === "showcase"
+            ? "No hay elementos marcados como visibles en el Escaparate."
+            : effectiveTab === "trash"
+              ? "La papelera está vacía."
+              : "No hay elementos que coincidan con esta vista o búsqueda.";
+          contentArea.innerHTML = `<div class="empty-state"><p style="margin:0; font-size:1rem;">${escapeHTML(emptyMsg)}</p></div>`;
+          return;
+        }
+
+        // Agrupar por categoría
+        const groupsMap = new Map();
+        filtered.forEach((item) => {
+          const catName = (item.category || "General").trim() || "General";
+          if (!groupsMap.has(catName)) {
+            groupsMap.set(catName, []);
+          }
+          groupsMap.get(catName).push(item);
+        });
+
+        // Ordenar categorías alfabéticamente (manteniendo primero las que tengan favoritos)
+        const sortedGroups = Array.from(groupsMap.entries()).sort((a, b) => {
+          const aHasFav = a[1].some((x) => x.favorite);
+          const bHasFav = b[1].some((x) => x.favorite);
+          if (aHasFav !== bHasFav) return aHasFav ? -1 : 1;
+          return a[0].localeCompare(b[0], "es");
+        });
+
+        // En pestañas "Frames" y "Escaparate", los frames se muestran ya cargados
+        const forceLoadedFrames = (effectiveTab === "frames" || effectiveTab === "showcase");
+        const viewClass = state.viewMode === "list"
+          ? "view-list"
+          : (forceLoadedFrames ? "view-grid frames-wide" : "view-grid");
+
+        const sectionsHtml = sortedGroups.map(([catName, groupItems]) => {
+          const isCollapsed = !state.presentationMode && state.collapsedCategories.has(catName);
+          const catColor = getCategoryColor(catName);
+          const catInitial = escapeHTML(getInitial(catName));
+          const catEsc = escapeHTML(catName);
+
+          const cardsHtml = isCollapsed
+            ? ""
+            : `<div class="items-container ${viewClass}">
+                ${groupItems.map((it) => renderItemCard(it, forceLoadedFrames)).join("")}
+              </div>`;
+
+          return `
+            <section class="category-section">
+              <button type="button" class="category-header ${isCollapsed ? "collapsed" : ""}" data-action="toggle-category" data-category="${catEsc}">
+                <div class="category-title-wrap">
+                  <span class="cat-avatar" style="background-color:${catColor};">${catInitial}</span>
+                  <span class="category-name">${catEsc}</span>
+                  <span class="badge">${groupItems.length}</span>
+                </div>
+                <span class="chevron">▼</span>
+              </button>
+              ${cardsHtml}
+            </section>
+          `;
+        }).join("");
+
+        contentArea.innerHTML = sectionsHtml;
+      }
+
+      /* ========================================================================
+         AJUSTES: CAMBIAR CONTRASEÑA, EXPORTAR E IMPORTAR COPIA CIFRADA
+         ======================================================================== */
+      function openSettingsModal() {
+        document.getElementById("currPassInput").value = "";
+        document.getElementById("newPass1Input").value = "";
+        document.getElementById("newPass2Input").value = "";
+        document.getElementById("changePassMsg").classList.add("hidden");
+        document.getElementById("importBackupMsg").classList.add("hidden");
+        document.getElementById("settingsModal").classList.remove("hidden");
+      }
+
+      async function handleChangePassword() {
+        const curr = document.getElementById("currPassInput").value;
+        const p1 = document.getElementById("newPass1Input").value;
+        const p2 = document.getElementById("newPass2Input").value;
+        const msgBox = document.getElementById("changePassMsg");
+
+        msgBox.className = "alert-box";
+        msgBox.classList.add("hidden");
+
+        if (curr !== state.password) {
+          msgBox.textContent = "La contraseña actual no es correcta.";
+          msgBox.classList.add("alert-danger");
+          msgBox.classList.remove("hidden");
+          return;
+        }
+        if (!p1 || p1.length < 6) {
+          msgBox.textContent = "La nueva contraseña debe tener al menos 6 caracteres.";
+          msgBox.classList.add("alert-danger");
+          msgBox.classList.remove("hidden");
+          return;
+        }
+        if (p1 !== p2) {
+          msgBox.textContent = "Las nuevas contraseñas no coinciden.";
+          msgBox.classList.add("alert-danger");
+          msgBox.classList.remove("hidden");
+          return;
+        }
+
+        const previousPassword = state.password;
+        state.password = p1;
+        const ok = await saveVaultToStorage();
+        if (ok) {
+          document.getElementById("currPassInput").value = "";
+          document.getElementById("newPass1Input").value = "";
+          document.getElementById("newPass2Input").value = "";
+          msgBox.textContent = "Contraseña actualizada y bóveda recifrada correctamente.";
+          msgBox.classList.add("alert-info");
+          msgBox.classList.remove("hidden");
+          showToast("Contraseña maestra actualizada.", "success");
+        } else {
+          state.password = previousPassword;
+        }
+      }
+
+      async function handleGenerateBackup() {
+        await saveVaultToStorage();
+        const rawVault = safeGetLocal(STORAGE_VAULT_KEY);
+        if (!rawVault) {
+          showToast("No hay datos cifrados para exportar.", "error");
+          return;
+        }
+        document.getElementById("exportBackupArea").value = rawVault;
+        showToast("Copia de seguridad cifrada generada.", "success");
+      }
+
+      function handleCopyBackup() {
+        const area = document.getElementById("exportBackupArea");
+        if (!area.value) {
+          showToast("Primero genera la copia cifrada.", "error");
+          return;
+        }
+        area.select();
+        area.setSelectionRange(0, area.value.length);
+        try {
+          const copied = document.execCommand("copy");
+          if (copied) {
+            showToast("Copia cifrada copiada al portapapeles.", "success");
+          } else if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(area.value).then(() => {
+              showToast("Copia cifrada copiada al portapapeles.", "success");
+            });
+          }
+        } catch (e) {
+          showToast("Selecciona el texto y cópialo manualmente.", "error");
+        }
+      }
+
+      async function executeBackupImport(cipherText, backupPassword, errorBoxEl, onSuccess) {
+        errorBoxEl.classList.add("hidden");
+        const trimmed = (cipherText || "").trim();
+        if (!trimmed) {
+          errorBoxEl.textContent = "Pega el texto cifrado de la copia de seguridad.";
+          errorBoxEl.classList.remove("hidden");
+          return;
+        }
+        if (!backupPassword) {
+          errorBoxEl.textContent = "Introduce la contraseña con la que se creó esa copia.";
+          errorBoxEl.classList.remove("hidden");
+          return;
+        }
+
+        try {
+          const decrypted = await decryptVaultPayload(trimmed, backupPassword);
+          if (!decrypted || !Array.isArray(decrypted.items)) {
+            throw new Error("Contenido inválido");
+          }
+          state.unlocked = true;
+          state.password = backupPassword;
+          state.items = decrypted.items;
+          state.expandedFrames.clear();
+          resetFailedAttempts();
+          await saveVaultToStorage();
+          onSuccess();
+        } catch (err) {
+          errorBoxEl.textContent = "No se pudo descifrar la copia. Verifica que el texto esté completo y que la contraseña sea correcta.";
+          errorBoxEl.classList.remove("hidden");
+        }
+      }
+
+      /* ========================================================================
+         INICIALIZACIÓN DE CONTROLADORES DE EVENTOS
+         ======================================================================== */
+      function initEventListeners() {
+        // Tema
+        document.getElementById("themeToggleBtn").addEventListener("click", toggleTheme);
+        document.getElementById("authThemeBtn").addEventListener("click", toggleTheme);
+
+        // Creación y desbloqueo de bóveda
+        document.getElementById("setupSubmitBtn").addEventListener("click", handleCreateVault);
+        document.getElementById("setupPass2").addEventListener("keydown", (e) => {
+          if (e.key === "Enter") handleCreateVault();
+        });
+
+        document.getElementById("unlockSubmitBtn").addEventListener("click", handleUnlockVault);
+        document.getElementById("unlockPass").addEventListener("keydown", (e) => {
+          if (e.key === "Enter") handleUnlockVault();
+        });
+
+        // Importar desde pantalla inicial
+        document.getElementById("openImportFromSetupBtn").addEventListener("click", () => {
+          document.getElementById("initImportText").value = "";
+          document.getElementById("initImportPass").value = "";
+          document.getElementById("initImportError").classList.add("hidden");
+          document.getElementById("initialImportModal").classList.remove("hidden");
+        });
+        document.getElementById("closeInitImportBtn").addEventListener("click", () => {
+          document.getElementById("initialImportModal").classList.add("hidden");
+        });
+        document.getElementById("initImportConfirmBtn").addEventListener("click", () => {
+          executeBackupImport(
+            document.getElementById("initImportText").value,
+            document.getElementById("initImportPass").value,
+            document.getElementById("initImportError"),
+            () => {
+              document.getElementById("initialImportModal").classList.add("hidden");
+              enterVaultUI();
+              showToast("Copia de seguridad restaurada correctamente.", "success");
+            }
+          );
+        });
+
+        // Bloqueo manual y Modo Presentación
+        document.getElementById("lockNowBtn").addEventListener("click", () => {
+          lockVault("Bóveda bloqueada.");
+        });
+
+        document.getElementById("presentationModeBtn").addEventListener("click", () => {
+          state.presentationMode = true;
+          renderApp();
+        });
+
+        document.getElementById("exitPresentationBtn").addEventListener("click", () => {
+          state.presentationMode = false;
+          renderApp();
+        });
+
+        // Pestañas
+        document.getElementById("tabsNav").addEventListener("click", (e) => {
+          const btn = e.target.closest(".tab-btn");
+          if (!btn) return;
+          state.activeTab = btn.getAttribute("data-tab") || "all";
+          renderApp();
+        });
+
+        // Búsqueda, filtro y modo de vista
+        document.getElementById("searchInput").addEventListener("input", (e) => {
+          state.searchQuery = e.target.value;
+          renderApp();
+        });
+
+        document.getElementById("typeFilterSelect").addEventListener("change", (e) => {
+          state.typeFilter = e.target.value;
+          renderApp();
+        });
+
+        document.getElementById("viewGridBtn").addEventListener("click", () => {
+          state.viewMode = "grid";
+          renderApp();
+        });
+
+        document.getElementById("viewListBtn").addEventListener("click", () => {
+          state.viewMode = "list";
+          renderApp();
+        });
+
+        // Editor de elementos
+        document.getElementById("openNewItemBtn").addEventListener("click", openEditorForNew);
+        document.getElementById("closeEditorBtn").addEventListener("click", () => {
+          document.getElementById("editorLivePreview").innerHTML = "";
+          document.getElementById("itemEditorPanel").classList.add("hidden");
+        });
+        document.getElementById("cancelEditorBtn").addEventListener("click", () => {
+          document.getElementById("editorLivePreview").innerHTML = "";
+          document.getElementById("itemEditorPanel").classList.add("hidden");
+        });
+        document.getElementById("itemRawInput").addEventListener("input", handleRawInputChange);
+        document.getElementById("saveItemBtn").addEventListener("click", handleSaveItem);
+
+        // Vaciar papelera
+        document.getElementById("emptyTrashBtn").addEventListener("click", requestEmptyTrash);
+
+        // Delegación de eventos en el área principal (tarjetas, categorías, frames)
+        document.getElementById("contentArea").addEventListener("click", (e) => {
+          const actionEl = e.target.closest("[data-action]");
+          if (!actionEl) return;
+
+          const action = actionEl.getAttribute("data-action");
+          const itemId = actionEl.getAttribute("data-id");
+
+          if (action === "toggle-category") {
+            const cat = actionEl.getAttribute("data-category");
+            if (state.collapsedCategories.has(cat)) {
+              state.collapsedCategories.delete(cat);
+            } else {
+              state.collapsedCategories.add(cat);
+            }
+            renderApp();
+          } else if (action === "favorite" && itemId) {
+            toggleFavorite(itemId);
+          } else if (action === "toggle-showcase" && itemId) {
+            toggleShowcase(itemId);
+          } else if (action === "toggle-frame" && itemId) {
+            if (state.expandedFrames.has(itemId)) {
+              state.expandedFrames.delete(itemId);
+            } else {
+              state.expandedFrames.add(itemId);
+            }
+            renderApp();
+          } else if (action === "edit" && itemId) {
+            openEditorForEdit(itemId);
+          } else if (action === "trash" && itemId) {
+            moveToTrash(itemId);
+          } else if (action === "restore" && itemId) {
+            restoreFromTrash(itemId);
+          } else if (action === "delete-perm" && itemId) {
+            requestPermanentDelete(itemId);
+          } else if (action === "fullscreen") {
+            const targetId = actionEl.getAttribute("data-target");
+            requestEmbedFullscreen(targetId);
+          }
+        });
+
+        // Modal de Ajustes
+        document.getElementById("settingsBtn").addEventListener("click", openSettingsModal);
+        document.getElementById("closeSettingsBtn").addEventListener("click", () => {
+          document.getElementById("settingsModal").classList.add("hidden");
+        });
+        document.getElementById("changePassBtn").addEventListener("click", handleChangePassword);
+        document.getElementById("generateBackupBtn").addEventListener("click", handleGenerateBackup);
+        document.getElementById("copyBackupBtn").addEventListener("click", handleCopyBackup);
+        document.getElementById("importBackupBtn").addEventListener("click", () => {
+          const msgBox = document.getElementById("importBackupMsg");
+          msgBox.className = "alert-box alert-danger hidden";
+          executeBackupImport(
+            document.getElementById("importBackupArea").value,
+            document.getElementById("importBackupPass").value,
+            msgBox,
+            () => {
+              document.getElementById("settingsModal").classList.add("hidden");
+              renderApp();
+              showToast("Copia de seguridad importada y descifrada.", "success");
+            }
+          );
+        });
+
+        // Modal de doble confirmación
+        document.getElementById("confirmCancelBtn").addEventListener("click", closeConfirmModal);
+        document.getElementById("confirmProceedBtn").addEventListener("click", handleConfirmProceed);
+      }
+
+      /* ========================================================================
+         ARRANQUE DE LA APLICACIÓN
+         ======================================================================== */
+      window.addEventListener("DOMContentLoaded", () => {
+        const savedTheme = safeGetLocal(STORAGE_THEME_KEY);
+        if (savedTheme === "light" || savedTheme === "dark") {
+          applyTheme(savedTheme);
+        } else {
+          updateThemeButtonsLabel();
+        }
+
+        initEventListeners();
+        renderAuthScreen();
+      });
+    })();
+  </script>
+</body>
+</html>
